@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="ModularBackend/ModularBackend.csproj" />
+  <Project Path="ModularBackend.Application/ModularBackend.Application.csproj" />
+  <Project Path="ModularBackend.Domain/ModularBackend.Domain.csproj" />
+  <Project Path="ModularBackend.Infraestructure/ModularBackend.Infraestructure.csproj" />
+  <Project Path="ModularBackend/ModularBackend.Api.csproj" />
 </Solution>
