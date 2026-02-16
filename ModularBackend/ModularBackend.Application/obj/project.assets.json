@@ -130,6 +130,16 @@
             "related": ".xml"
           }
         }
+      },
+      "ModularBackend.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "compile": {
+          "bin/placeholder/ModularBackend.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ModularBackend.Domain.dll": {}
+        }
       }
     }
   },
@@ -370,11 +380,17 @@
         "microsoft.identitymodel.tokens.8.14.0.nupkg.sha512",
         "microsoft.identitymodel.tokens.nuspec"
       ]
+    },
+    "ModularBackend.Domain/1.0.0": {
+      "type": "project",
+      "path": "../ModularBackend.Domain/ModularBackend.Domain.csproj",
+      "msbuildProject": "../ModularBackend.Domain/ModularBackend.Domain.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "MediatR >= 14.0.0"
+      "MediatR >= 14.0.0",
+      "ModularBackend.Domain >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -409,7 +425,11 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Domain\\ModularBackend.Domain.csproj": {
+              "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Domain\\ModularBackend.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

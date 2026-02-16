@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ModularBackend.Application\ModularBackend.Application.csproj" />
+    <ProjectReference Include="..\ModularBackend.Domain\ModularBackend.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
