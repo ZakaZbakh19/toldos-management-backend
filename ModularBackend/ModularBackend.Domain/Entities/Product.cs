@@ -10,8 +10,9 @@ namespace ModularBackend.Domain.Entities
         public Money BasePrice { get; private set; }
         public string Description { get; private set; } = string.Empty;
         public bool IsActive { get; private set; }
+        public TaxRate TaxRate { get; private set; }
 
-        public Product(string name, Money basePrice, string? description = null, bool isActive = true)
+        public Product(string name, TaxRate taxRate, Money basePrice, string? description = null, bool isActive = true)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Product name cannot be empty.", nameof(name));
@@ -23,9 +24,24 @@ namespace ModularBackend.Domain.Entities
                 throw new ArgumentException("Product description cannot exceed 500 characters.", nameof(description));
 
             Name = name.Trim();
+            TaxRate = taxRate;
             BasePrice = basePrice;
             Description = description?.Trim() ?? string.Empty;
             IsActive = isActive;
+        }
+
+        public void ChangeDescription(string? description)
+        {
+            EnsureActiveForModification();
+            if (description is not null && description.Length > 500)
+                throw new ArgumentException("Product description cannot exceed 500 characters.", nameof(description));
+            Description = description?.Trim() ?? string.Empty;
+        }
+
+        public void ChangeTaxRate(TaxRate newTaxRate)
+        {
+            EnsureActiveForModification();
+            TaxRate = newTaxRate;
         }
 
         public void ChangePrice(Money newBasePrice)
@@ -50,12 +66,6 @@ namespace ModularBackend.Domain.Entities
 
         public void Deactivate() => IsActive = false;
         public void Activate() => IsActive = true;
-
-        public void EnsureCanBeSold()
-        {
-            if (!IsActive)
-                throw new BusinessRuleViolationException("Product is inactive.");
-        }
 
         private void EnsureActiveForModification()
         {

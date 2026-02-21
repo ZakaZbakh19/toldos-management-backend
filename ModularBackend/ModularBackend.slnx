@@ -1,7 +1,7 @@
 <Solution>
   <Project Path="ModularBackend.Application/ModularBackend.Application.csproj" />
   <Project Path="ModularBackend.Domain/ModularBackend.Domain.csproj" />
-  <Project Path="ModularBackend.Infraestructure/ModularBackend.Infraestructure.csproj" />
+  <Project Path="ModularBackend.Infraestructure/ModularBackend.Infrastructure.csproj" />
   <Project Path="ModularBackEnd.Test/ModularBackEnd.Test.csproj" Id="88e5d09b-a52b-4fda-8c05-4450e8c6cdf4" />
   <Project Path="ModularBackend/ModularBackend.Api.csproj" />
 </Solution>

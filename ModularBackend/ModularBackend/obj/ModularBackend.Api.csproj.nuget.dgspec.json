@@ -55,9 +55,17 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "dependencies": {
-            "MediatR": {
+            "FluentValidation": {
               "target": "Package",
-              "version": "[14.0.0, )"
+              "version": "[12.1.1, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[10.0.3, )"
             }
           },
           "imports": [
@@ -725,9 +733,6 @@
             "projectReferences": {
               "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Application\\ModularBackend.Application.csproj": {
                 "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Application\\ModularBackend.Application.csproj"
-              },
-              "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Domain\\ModularBackend.Domain.csproj": {
-                "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Domain\\ModularBackend.Domain.csproj"
               }
             }
           }
@@ -747,6 +752,12 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[10.0.3, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -1095,15 +1106,7 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "dependencies": {
-            "MediatR": {
-              "target": "Package",
-              "version": "[14.0.0, )"
-            },
             "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[10.0.2, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[10.0.2, )"
             },

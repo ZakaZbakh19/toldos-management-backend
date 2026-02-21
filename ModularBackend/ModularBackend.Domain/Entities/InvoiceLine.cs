@@ -13,10 +13,10 @@ namespace ModularBackend.Domain.Entities
         public string Description { get; private set; }
         public decimal Quantity { get; private set; }
         public Money UnitPrice { get; private set; }
-        public TaxRate TaxRate { get; private set; }
+        public TaxRate TaxRate{ get; private set; }
         public decimal DiscountPercentage { get; private set; }
 
-        public InvoiceLine(string description, TaxRate taxRate ,decimal quantity, Money unitPrice, Guid? productId = null, decimal discountPercentage = 0m)
+        public InvoiceLine(string description, TaxRate taxRate , decimal quantity, Money unitPrice, Guid? productId = null, decimal discountPercentage = 0m)
         { 
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Description is required.", nameof(description));
@@ -29,6 +29,9 @@ namespace ModularBackend.Domain.Entities
 
             if(unitPrice is null)
                 throw new ArgumentNullException(nameof(unitPrice));
+
+            if(taxRate.Equals(default))
+                throw new ArgumentException("Tax rate is required.", nameof(taxRate));
 
             Description = description.Trim();
             TaxRate = taxRate;

@@ -36,20 +36,24 @@ namespace ModularBackend.Domain.Entities
             Currency = currency;
         }
 
-        public void AddLine(InvoiceLine line)
+        public void AddProductLine(Product product, decimal quantity, decimal discount = 0m)
         {
             EnsureDraft();
             EnsureNotCancelled();
 
-            if (line is null) throw new ArgumentNullException(nameof(line));
-
-            if (line.UnitPrice.Currency != Currency)
-                throw new BusinessRuleViolationException("Line currency must match invoice currency.");
+            var line = new InvoiceLine(
+                description: product.Name,
+                taxRate: product.TaxRate,
+                quantity: quantity,
+                unitPrice: product.BasePrice,
+                productId: product.Id,
+                discountPercentage: discount);
 
             _lines.Add(line);
         }
 
-        public void RemoveLine(Guid lineId)
+
+        public void RemoveProductLine(Guid lineId)
         {
             EnsureDraft();
             EnsureNotCancelled();
