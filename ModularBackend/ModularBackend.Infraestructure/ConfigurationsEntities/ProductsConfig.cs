@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ModularBackend.Domain.Entities;
+using ModularBackend.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,6 +22,16 @@ namespace ModularBackend.Infraestructure.ConfigurationsEntities
                 money.Property(m => m.Currency)
                      .IsRequired();
             });
+
+            var taxRateConverter = new ValueConverter<TaxRate, decimal>(
+                        v => v.Percentage,
+                        v => new TaxRate(v)
+                    );
+
+            builder.Property(p => p.TaxRate)
+                   .HasConversion(taxRateConverter)
+                   .HasPrecision(5, 2)
+                   .IsRequired();
         }
     }
 }

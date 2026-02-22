@@ -1777,9 +1777,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj",
-      "projectName": "ModularBackend.Infraestructure",
-      "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj",
+      "projectUniqueName": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj",
+      "projectName": "ModularBackend.Infrastructure",
+      "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj",
       "packagesPath": "C:\\Users\\zaka-\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\obj\\",
       "projectStyle": "PackageReference",

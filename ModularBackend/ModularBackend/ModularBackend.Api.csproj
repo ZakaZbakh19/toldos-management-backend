@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ModularBackend.Application\ModularBackend.Application.csproj" />
-    <ProjectReference Include="..\ModularBackend.Infraestructure\ModularBackend.Infraestructure.csproj" />
+    <ProjectReference Include="..\ModularBackend.Infraestructure\ModularBackend.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

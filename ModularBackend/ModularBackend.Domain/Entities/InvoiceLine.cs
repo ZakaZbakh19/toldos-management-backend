@@ -16,6 +16,11 @@ namespace ModularBackend.Domain.Entities
         public TaxRate TaxRate{ get; private set; }
         public decimal DiscountPercentage { get; private set; }
 
+        public InvoiceLine()
+        {
+            
+        }
+
         public InvoiceLine(string description, TaxRate taxRate , decimal quantity, Money unitPrice, Guid? productId = null, decimal discountPercentage = 0m)
         { 
             if (string.IsNullOrWhiteSpace(description))

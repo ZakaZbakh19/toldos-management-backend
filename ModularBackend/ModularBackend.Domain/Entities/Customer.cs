@@ -15,6 +15,11 @@ namespace ModularBackend.Domain.Entities
         public Address BillingAddress { get; private set; }
         public Address InstallationAddress { get; private set; }
 
+        public Customer()
+        {
+            
+        }
+
         public Customer(string name, TaxId taxId, Contact contact, Address billingAddress, Address? installationAddress = null)
         {
             if (string.IsNullOrWhiteSpace(name))

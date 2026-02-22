@@ -702,12 +702,12 @@
         }
       }
     },
-    "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj": {
+    "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj",
-        "projectName": "ModularBackend.Infraestructure",
-        "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj",
+        "projectUniqueName": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj",
+        "projectName": "ModularBackend.Infrastructure",
+        "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\zaka-\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\obj\\",
         "projectStyle": "PackageReference",
@@ -1084,8 +1084,8 @@
               "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Application\\ModularBackend.Application.csproj": {
                 "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Application\\ModularBackend.Application.csproj"
               },
-              "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj": {
-                "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj"
+              "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj"
               }
             }
           }
@@ -1114,7 +1114,7 @@
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.2, )"
+              "version": "[10.0.3, )"
             }
           },
           "imports": [

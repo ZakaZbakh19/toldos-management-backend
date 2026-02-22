@@ -585,7 +585,7 @@
       "Microsoft.EntityFrameworkCore.Analyzers/10.0.3": {
         "type": "package"
       },
-      "Microsoft.EntityFrameworkCore.Design/10.0.2": {
+      "Microsoft.EntityFrameworkCore.Design/10.0.3": {
         "type": "package",
         "dependencies": {
           "Humanizer.Core": "2.14.1",
@@ -593,8 +593,8 @@
           "Microsoft.CodeAnalysis.CSharp": "5.0.0",
           "Microsoft.CodeAnalysis.CSharp.Workspaces": "5.0.0",
           "Microsoft.CodeAnalysis.Workspaces.MSBuild": "5.0.0",
-          "Microsoft.EntityFrameworkCore.Relational": "10.0.2",
-          "Microsoft.Extensions.DependencyModel": "10.0.2",
+          "Microsoft.EntityFrameworkCore.Relational": "10.0.3",
+          "Microsoft.Extensions.DependencyModel": "10.0.3",
           "Mono.TextTemplating": "3.0.0",
           "Newtonsoft.Json": "13.0.3"
         },
@@ -645,13 +645,13 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Tools/10.0.2": {
+      "Microsoft.EntityFrameworkCore.Tools/10.0.3": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Design": "10.0.2"
+          "Microsoft.EntityFrameworkCore.Design": "10.0.3"
         }
       },
-      "Microsoft.Extensions.DependencyModel/10.0.2": {
+      "Microsoft.Extensions.DependencyModel/10.0.3": {
         "type": "package",
         "compile": {
           "lib/net10.0/_._": {
@@ -1118,7 +1118,7 @@
           "bin/placeholder/ModularBackend.Domain.dll": {}
         }
       },
-      "ModularBackend.Infraestructure/1.0.0": {
+      "ModularBackend.Infrastructure/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
@@ -1126,10 +1126,10 @@
           "ModularBackend.Application": "1.0.0"
         },
         "compile": {
-          "bin/placeholder/ModularBackend.Infraestructure.dll": {}
+          "bin/placeholder/ModularBackend.Infrastructure.dll": {}
         },
         "runtime": {
-          "bin/placeholder/ModularBackend.Infraestructure.dll": {}
+          "bin/placeholder/ModularBackend.Infrastructure.dll": {}
         }
       }
     }
@@ -2508,10 +2508,10 @@
         "microsoft.entityframeworkcore.analyzers.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Design/10.0.2": {
-      "sha512": "tBwpyZ75SqcRjmZyhLYJVGKyfz1Z1dmsYtvJGZ2QLSI1tOHgMuLPTovunHA1JF9a0EWJs+WB6tVWmqo3DTL/MQ==",
+    "Microsoft.EntityFrameworkCore.Design/10.0.3": {
+      "sha512": "OPZ/u7fONQFmnyUIDB8SeJtKnyFkj1zJsZ0Ke2Cp17q8hYs6jGmYEFd6Ne4Hdcd6auUdFdV7di+uFo2w+L34NA==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.design/10.0.2",
+      "path": "microsoft.entityframeworkcore.design/10.0.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2520,7 +2520,7 @@
         "build/net10.0/Microsoft.EntityFrameworkCore.Design.props",
         "lib/net10.0/Microsoft.EntityFrameworkCore.Design.dll",
         "lib/net10.0/Microsoft.EntityFrameworkCore.Design.xml",
-        "microsoft.entityframeworkcore.design.10.0.2.nupkg.sha512",
+        "microsoft.entityframeworkcore.design.10.0.3.nupkg.sha512",
         "microsoft.entityframeworkcore.design.nuspec"
       ]
     },
@@ -2554,17 +2554,17 @@
         "microsoft.entityframeworkcore.sqlserver.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Tools/10.0.2": {
-      "sha512": "Q7s7zCjEikOn4e7yS7kMPm3xkKR7CdfUhmN/sdFsKLslvS/iGS8zQUROvZRkbxRISA2SJ6sfho0cX8F8lo1khQ==",
+    "Microsoft.EntityFrameworkCore.Tools/10.0.3": {
+      "sha512": "m6DcnrjYfYwNrxcLjchzehd7kLEVGo33Vq83O2y6GXtEgAL0JdBTWtqZzGuRa/8YFcrEUxfYlsSpu4w1SdYcAg==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.tools/10.0.2",
+      "path": "microsoft.entityframeworkcore.tools/10.0.3",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
         "docs/PACKAGE.md",
-        "microsoft.entityframeworkcore.tools.10.0.2.nupkg.sha512",
+        "microsoft.entityframeworkcore.tools.10.0.3.nupkg.sha512",
         "microsoft.entityframeworkcore.tools.nuspec",
         "tools/EntityFrameworkCore.PS2.psd1",
         "tools/EntityFrameworkCore.PS2.psm1",
@@ -2579,10 +2579,10 @@
         "tools/net8.0/any/ef.runtimeconfig.json"
       ]
     },
-    "Microsoft.Extensions.DependencyModel/10.0.2": {
-      "sha512": "DHXzj/FKmUDmhzw7AHbMXbNNcgO8Cb9PDbYOUDICjFAdIALy2WbC6pm+dFKiAUNtcYMucZu2iMVw1ef/sdcZFw==",
+    "Microsoft.Extensions.DependencyModel/10.0.3": {
+      "sha512": "31kRjr1fgdJO1UZ/AsjL2noqwht+juHMQ8c/oh8CEsDhlM2+0zwVZVsZjxSfOFiPtn5+6kRGuvSbLAufAPT0kA==",
       "type": "package",
-      "path": "microsoft.extensions.dependencymodel/10.0.2",
+      "path": "microsoft.extensions.dependencymodel/10.0.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2603,7 +2603,7 @@
         "lib/net9.0/Microsoft.Extensions.DependencyModel.xml",
         "lib/netstandard2.0/Microsoft.Extensions.DependencyModel.dll",
         "lib/netstandard2.0/Microsoft.Extensions.DependencyModel.xml",
-        "microsoft.extensions.dependencymodel.10.0.2.nupkg.sha512",
+        "microsoft.extensions.dependencymodel.10.0.3.nupkg.sha512",
         "microsoft.extensions.dependencymodel.nuspec",
         "useSharedDesignerContext.txt"
       ]
@@ -3251,18 +3251,18 @@
       "path": "../ModularBackend.Domain/ModularBackend.Domain.csproj",
       "msbuildProject": "../ModularBackend.Domain/ModularBackend.Domain.csproj"
     },
-    "ModularBackend.Infraestructure/1.0.0": {
+    "ModularBackend.Infrastructure/1.0.0": {
       "type": "project",
-      "path": "../ModularBackend.Infraestructure/ModularBackend.Infraestructure.csproj",
-      "msbuildProject": "../ModularBackend.Infraestructure/ModularBackend.Infraestructure.csproj"
+      "path": "../ModularBackend.Infraestructure/ModularBackend.Infrastructure.csproj",
+      "msbuildProject": "../ModularBackend.Infraestructure/ModularBackend.Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
       "Microsoft.AspNetCore.OpenApi >= 10.0.2",
-      "Microsoft.EntityFrameworkCore.Tools >= 10.0.2",
+      "Microsoft.EntityFrameworkCore.Tools >= 10.0.3",
       "ModularBackend.Application >= 1.0.0",
-      "ModularBackend.Infraestructure >= 1.0.0"
+      "ModularBackend.Infrastructure >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -3301,8 +3301,8 @@
             "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Application\\ModularBackend.Application.csproj": {
               "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Application\\ModularBackend.Application.csproj"
             },
-            "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj": {
-              "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infraestructure.csproj"
+            "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend.Infraestructure\\ModularBackend.Infrastructure.csproj"
             }
           }
         }
@@ -3331,7 +3331,7 @@
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.2, )"
+            "version": "[10.0.3, )"
           }
         },
         "imports": [

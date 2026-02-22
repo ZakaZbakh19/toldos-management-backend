@@ -12,6 +12,11 @@ namespace ModularBackend.Domain.Entities
         public bool IsActive { get; private set; }
         public TaxRate TaxRate { get; private set; }
 
+        public Product()
+        {
+            
+        }
+
         public Product(string name, TaxRate taxRate, Money basePrice, string? description = null, bool isActive = true)
         {
             if (string.IsNullOrWhiteSpace(name))
