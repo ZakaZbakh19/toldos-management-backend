@@ -36,6 +36,12 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
             await _productRepository.AddAsync(product, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+            await _productRepository.UpdateAsync(product, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await _productRepository.UpdateAsync(product, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
             return product.Id;
         }
     }

@@ -1,21 +1,33 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Products.Commands.CreateProduct;
+using ModularBackend.Application.Products.Queries.GetProductById;
+using ModularBackend.Domain.Entities;
 
 namespace ModularBackend.Api.Features.Products
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public ProductsController(IMediator mediator)
+        public ProductController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
+        [HttpGet("{id:guid}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
+        {
+            var dto = await _mediator.Send(new GetProductByIdQuery(id), ct);
+            return Ok(dto);
+        }
+
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO dto, CancellationToken ct)
         {
             var command = new CreateProductCommand(
@@ -29,7 +41,7 @@ namespace ModularBackend.Api.Features.Products
 
             var id = await _mediator.Send(command, ct);
 
-            return CreatedAtAction(nameof(Application.Products.Queries.GetProductById), new { id }, null);
+            return CreatedAtAction(nameof(GetById), new { id }, null);
         }
     }
 }

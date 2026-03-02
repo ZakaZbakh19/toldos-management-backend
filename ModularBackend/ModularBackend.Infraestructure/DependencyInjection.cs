@@ -1,18 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ModularBackend.Application.Abstractions.Common;
-using ModularBackend.Application.Abstractions.Messaging.Mediator;
+using Microsoft.IdentityModel.Tokens;
+using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
-using ModularBackend.Application.Products.Commands.CreateProduct;
-using ModularBackend.Application.Products.Queries.GetProductById;
 using ModularBackend.Infraestructure.Persistance;
 using ModularBackend.Infraestructure.Repositories;
 using ModularBackend.Infraestructure.Repositories.Persistance;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
+using ModularBackend.Infrastructure.Identity;
+using ModularBackend.Infrastructure.Persistance;
 using System.Text;
 
 namespace ModularBackend.Infraestructure
@@ -29,6 +28,50 @@ namespace ModularBackend.Infraestructure
             services.AddScoped<IUnitOfWork, UnitOfWorkRepository>();
             services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
             services.AddScoped<IProductQuery, ProductReadRepository>();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.MapInboundClaims = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]!)),
+                        //ValidIssuer = configuration["AzureAd:Instance"] + configuration["AzureAd:TenantId"],
+                        //ValidAudience = configuration["AzureAd:ClientId"]
+                    };
+                    //options.Audience = configuration["AzureAd:ClientId"];
+                    //options.Authority = $"{configuration["AzureAd:Instance"]}{configuration["AzureAd:TenantId"]}";
+                });
+
+            services.AddScoped<IUsers, Users>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.Configure<JwtSettings>(
+                configuration.GetSection("Jwt"));
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Products.Write", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("permission", "products.write");
+                });
+
+                options.AddPolicy("AdminOnly", policy =>
+                {
+                    policy.RequireRole("Admin");
+                });
+            });
+            services.AddAuthorizationBuilder();
+            services.AddDbContext<IdentityUsersDbContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("IdentityDevConnection")));
+            services.AddIdentityCore<Users>()
+                .AddEntityFrameworkStores<IdentityUsersDbContext>()
+                .AddSignInManager()
+                .AddDefaultTokenProviders();
 
             return services;
         }

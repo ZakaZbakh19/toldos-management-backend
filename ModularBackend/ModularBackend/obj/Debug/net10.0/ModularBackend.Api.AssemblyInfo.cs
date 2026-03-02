@@ -11,10 +11,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("dd5fe6b0-4d9f-40ec-8908-a498368cd46e")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("ModularBackend.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+24d8ca960a55beb41bb20fa4749901ebe005ded1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1fd7be0c9238dcd396a0b056e5970c2e61cecc81")]
 [assembly: System.Reflection.AssemblyProductAttribute("ModularBackend.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ModularBackend.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

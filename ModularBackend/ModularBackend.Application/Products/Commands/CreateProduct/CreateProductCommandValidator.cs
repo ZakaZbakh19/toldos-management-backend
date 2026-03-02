@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using ModularBackend.Api.Features.Users;
 using ModularBackend.Domain.Enumerables;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace ModularBackend.Application.Products.Commands.CreateProduct
 {
-    public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
+    public class CreateProductCommandValidator : AbstractValidator<LoginResponseCommand>
     {
         public CreateProductCommandValidator()
         {

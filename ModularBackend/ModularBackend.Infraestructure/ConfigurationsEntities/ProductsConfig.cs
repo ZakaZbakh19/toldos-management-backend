@@ -16,10 +16,14 @@ namespace ModularBackend.Infraestructure.ConfigurationsEntities
             builder.OwnsOne(p => p.BasePrice, money =>
             {
                 money.Property(m => m.Amount)
+                     .HasColumnName("BasePriceAmount")
                      .HasPrecision(18, 2)
                      .IsRequired();
 
                 money.Property(m => m.Currency)
+                     .HasColumnName("BasePriceCurrency")
+                     .HasConversion<string>()
+                     .HasMaxLength(3)
                      .IsRequired();
             });
 

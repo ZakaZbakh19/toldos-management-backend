@@ -1,4 +1,5 @@
-﻿using ModularBackend.Application.Abstractions.Common;
+﻿using Microsoft.EntityFrameworkCore;
+using ModularBackend.Application.Abstractions.Common;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Infraestructure.Persistance;
 using System;

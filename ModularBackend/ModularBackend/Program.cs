@@ -23,6 +23,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseMiddleware<LoggingMiddleware>();
+
 app.UseMiddleware<ExceptionsMiddleware>();
 
 app.UseHttpsRedirection();

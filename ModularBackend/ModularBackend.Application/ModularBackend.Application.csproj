@@ -19,6 +19,7 @@
   <ItemGroup>
     <Folder Include="Invoices\" />
     <Folder Include="Customers\" />
+    <Folder Include="Users\Queries\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
 
