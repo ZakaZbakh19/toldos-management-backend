@@ -10,8 +10,9 @@ using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Infraestructure.Persistance;
 using ModularBackend.Infraestructure.Repositories;
 using ModularBackend.Infraestructure.Repositories.Persistance;
-using ModularBackend.Infrastructure.Identity;
+using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Services.Identity;
 using System.Text;
 
 namespace ModularBackend.Infraestructure
@@ -54,10 +55,10 @@ namespace ModularBackend.Infraestructure
                 configuration.GetSection("Jwt"));
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Products.Write", policy =>
+                options.AddPolicy("ProductManager", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("permission", "products.write");
+                    policy.RequireClaim("permission", "products.manager");
                 });
 
                 options.AddPolicy("AdminOnly", policy =>
