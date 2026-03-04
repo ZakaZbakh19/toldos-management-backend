@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ModularBackend.Infrastructure.Models.Identity
 {
-    public class Users : IdentityUser, IUsers
+    public class Users : IdentityUser
     {
     }
 }

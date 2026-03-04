@@ -4,7 +4,8 @@ using System.Text;
 
 namespace ModularBackend.Application.Abstractions.Messaging.Mediator
 {
-    public interface IRequest<TResponse> 
+    public struct Unit
     {
+        public static readonly Unit Instance = new Unit();
     }
 }

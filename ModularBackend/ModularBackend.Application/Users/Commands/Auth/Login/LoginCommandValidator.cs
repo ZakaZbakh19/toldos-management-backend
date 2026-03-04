@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Application.Users.Commands.Auth
+namespace ModularBackend.Application.Users.Commands.Auth.Login
 {
     public class LoginCommandValidator : AbstractValidator<LoginRequestCommand>
     {

@@ -1,14 +1,9 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity.Data;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
-using ModularBackend.Application.Products.Commands.CreateProduct;
-using ModularBackend.Application.Products.Queries.GetProductById;
-using ModularBackend.Application.Users.Commands.Auth;
-using ModularBackend.Domain.Entities;
+using ModularBackend.Application.Users.Commands.Auth.Login;
+using ModularBackend.Application.Users.Commands.Auth.Refresh;
+using ModularBackend.Application.Users.Commands.Auth.Register;
 
 namespace ModularBackend.Api.Features.Users
 {
@@ -44,9 +39,18 @@ namespace ModularBackend.Api.Features.Users
 
         [HttpPost("refresh")]
         [AllowAnonymous]
-        public async Task<IActionResult> RefreshToekn([FromBody] string refreshToken)
+        public async Task<IActionResult> Refresh([FromBody] string refreshRaw)
         {
-            var sendRequest = new RefreshRequestCommand(refreshToken);
+            var sendRequest = new RefreshRequestCommand(refreshRaw);
+            var result = await _mediator.Send(sendRequest);
+            return Ok(result);
+        }
+
+        [HttpPost("logout")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Logout([FromBody] string refreshRaw)
+        {
+            var sendRequest = new RefreshRequestCommand(refreshRaw);
             var result = await _mediator.Send(sendRequest);
             return Ok(result);
         }

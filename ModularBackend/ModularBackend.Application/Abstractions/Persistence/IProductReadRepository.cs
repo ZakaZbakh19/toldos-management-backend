@@ -6,7 +6,8 @@ using System.Text;
 
 namespace ModularBackend.Application.Abstractions.Persistence
 {
-    public interface IProductQuery : IReadRepository<ProductDetailDTO>
+    public interface IProductReadRepository
+        : IReadRepository<ProductDetailDTO>
     {
     }
 }

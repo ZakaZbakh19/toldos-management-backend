@@ -12,6 +12,7 @@ using ModularBackend.Infraestructure.Repositories;
 using ModularBackend.Infraestructure.Repositories.Persistance;
 using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Repositories.Persistence;
 using ModularBackend.Infrastructure.Services.Identity;
 using System.Text;
 
@@ -19,60 +20,78 @@ namespace ModularBackend.Infraestructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(
-         this IServiceCollection services,
-         IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            // Settings fuertemente tipados
+            services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+            var jwtSettings = configuration.GetSection("Jwt").Get<JwtSettings>()
+                             ?? throw new InvalidOperationException("Missing Jwt settings.");
+
+            // DbContexts
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DevConnection")));
 
-            services.AddScoped<IUnitOfWork, UnitOfWorkRepository>();
-            services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
-            services.AddScoped<IProductQuery, ProductReadRepository>();
+            services.AddDbContext<IdentityUsersDbContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("IdentityDevConnection")));
 
+            // UoW + repos (ApplicationDbContext)
+            services.AddScoped<IUnitOfWork, UnitOfWorkRepository>();
+            services.AddScoped<IIdentityUnitOfWork, IdentityUnitOfWorkRepository>();
+            services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
+            services.AddScoped<IProductReadRepository, ProductReadRepository>();
+
+            // Identity
+            services.AddIdentityCore<Users>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            })
+            .AddEntityFrameworkStores<IdentityUsersDbContext>()
+            .AddSignInManager()
+            .AddDefaultTokenProviders();
+
+            // JWT AuthN
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.MapInboundClaims = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]!)),
-                        //ValidIssuer = configuration["AzureAd:Instance"] + configuration["AzureAd:TenantId"],
-                        //ValidAudience = configuration["AzureAd:ClientId"]
+
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                        ClockSkew = TimeSpan.FromMinutes(1)
                     };
-                    //options.Audience = configuration["AzureAd:ClientId"];
-                    //options.Authority = $"{configuration["AzureAd:Instance"]}{configuration["AzureAd:TenantId"]}";
                 });
 
-            services.AddScoped<IUsers, Users>();
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.Configure<JwtSettings>(
-                configuration.GetSection("Jwt"));
+            // Policies
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("ProductManager", policy =>
+                options.AddPolicy("ProductManager", p =>
                 {
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("permission", "products.manager");
+                    p.RequireAuthenticatedUser();
+                    p.RequireClaim("permission", "products.manager");
                 });
 
-                options.AddPolicy("AdminOnly", policy =>
-                {
-                    policy.RequireRole("Admin");
-                });
+                options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
             });
-            services.AddAuthorizationBuilder();
-            services.AddDbContext<IdentityUsersDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("IdentityDevConnection")));
-            services.AddIdentityCore<Users>()
-                .AddEntityFrameworkStores<IdentityUsersDbContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
+
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }

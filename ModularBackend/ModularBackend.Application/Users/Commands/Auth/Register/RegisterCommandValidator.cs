@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace ModularBackend.Application.Users.Commands.Auth
+namespace ModularBackend.Application.Users.Commands.Auth.Register
 {
     public class RegisterCommandValidator : AbstractValidator<RegisterRequestCommand>
     {

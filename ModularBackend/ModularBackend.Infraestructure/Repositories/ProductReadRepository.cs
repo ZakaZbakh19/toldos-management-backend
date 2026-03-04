@@ -11,7 +11,7 @@ using System.Text;
 
 namespace ModularBackend.Infraestructure.Repositories
 {
-    public class ProductReadRepository : IProductQuery
+    public class ProductReadRepository : IProductReadRepository
     {
         private readonly ApplicationDbContext _applicationDbContext;
         public ProductReadRepository(ApplicationDbContext applicationDbContext)
