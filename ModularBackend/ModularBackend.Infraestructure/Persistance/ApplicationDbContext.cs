@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Infraestructure.Persistance
+namespace ModularBackend.Infrastructure.Persistance
 {
     public class ApplicationDbContext : DbContext
     {

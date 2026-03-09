@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ModularBackend.Application\ModularBackend.Application.csproj" />
-    <ProjectReference Include="..\ModularBackend.Infraestructure\ModularBackend.Infrastructure.csproj" />
+    <ProjectReference Include="..\ModularBackend.Infrastructure\ModularBackend.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

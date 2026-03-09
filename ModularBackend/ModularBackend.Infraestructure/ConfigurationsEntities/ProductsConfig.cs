@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Infraestructure.ConfigurationsEntities
+namespace ModularBackend.Infrastructure.ConfigurationsEntities
 {
     public class ProductsConfig : IEntityTypeConfiguration<Product>
     {

@@ -1,48 +1,48 @@
-﻿using FluentValidation;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using ModularBackend.Application.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace ModularBackend.Application.Abstractions.Messaging.Mediator
+namespace ModularBackend.Application.Abstractions.Messaging.Mediator;
+
+public sealed class Mediator : IMediator
 {
-    public sealed class Mediator : IMediator
+    private static readonly MethodInfo SendInternalMethod =
+        typeof(Mediator).GetMethod(nameof(SendInternal), BindingFlags.Instance | BindingFlags.NonPublic)
+        ?? throw new InvalidOperationException("Mediator internal send method was not found.");
+
+    private readonly IServiceProvider _serviceProvider;
+
+    public Mediator(IServiceProvider serviceProvider)
     {
-        private readonly IServiceProvider _serviceProvider;
+        _serviceProvider = serviceProvider;
+    }
 
-        public Mediator(IServiceProvider serviceProvider)
-            => _serviceProvider = serviceProvider;
+    public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
 
-        public async Task<TResponse> Send<TResponse>(
-            IRequest<TResponse> request,
-            CancellationToken cancellationToken = default)
+        var closedMethod = SendInternalMethod.MakeGenericMethod(request.GetType(), typeof(TResponse));
+        var task = (Task<TResponse>?)closedMethod.Invoke(this, new object[] { request, cancellationToken });
+
+        return task ?? throw new MediatorException(
+            $"Mediator could not dispatch request '{request.GetType().Name}'.");
+    }
+
+    private Task<TResponse> SendInternal<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken)
+        where TRequest : IRequest<TResponse>
+    {
+        var handler = _serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
+        var behaviors = _serviceProvider.GetServices<IPipelineBehavior<TRequest, TResponse>>().Reverse().ToArray();
+
+        RequestHandlerDelegate<TResponse> next = () => handler.Handle(request, cancellationToken);
+
+        foreach (var behavior in behaviors)
         {
-            if (request is null)
-                throw new MediatorException("Request cannot be null.");
-
-            var validatorType = typeof(IValidator<>)
-                .MakeGenericType(request.GetType());
-
-            var validator = _serviceProvider.GetService(validatorType);
-            if (validator is not null)
-            {
-                var validationResult = await ((dynamic)validator).ValidateAsync((dynamic)request, cancellationToken);
-                if (!validationResult.IsValid)
-                    throw new ValidationException(validationResult.Errors);
-            }
-
-            var handlerType = typeof(IRequestHandler<,>)
-                .MakeGenericType(request.GetType(), typeof(TResponse));
-
-            var handler = _serviceProvider.GetService(handlerType);
-
-            if (handler is null)
-                throw new MediatorException(
-                    $"No handler registered for request '{request.GetType().Name}' -> response '{typeof(TResponse).Name}'.");
-
-            // Importante: esto invoca Handle sin reflection MethodInfo.Invoke
-            // y por tanto no te envuelve la excepción real en TargetInvocationException.
-            return await ((dynamic)handler).Handle((dynamic)request, cancellationToken);
+            var currentNext = next;
+            next = () => behavior.Handle(request, currentNext, cancellationToken);
         }
+
+        return next();
     }
 }
+

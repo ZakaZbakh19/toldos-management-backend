@@ -5,5 +5,5 @@ using System.Text;
 
 namespace ModularBackend.Application.Products.Queries.GetProductById
 {
-    public sealed record GetProductByIdQuery(Guid Id) : IRequest<ProductDetailDTO>;
+    public sealed record GetProductByIdQuery(Guid Id) : IQueryRequest<ProductDetailDTO>;
 }

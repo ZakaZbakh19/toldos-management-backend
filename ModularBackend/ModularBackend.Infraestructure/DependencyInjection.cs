@@ -7,16 +7,14 @@ using Microsoft.IdentityModel.Tokens;
 using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
-using ModularBackend.Infraestructure.Persistance;
-using ModularBackend.Infraestructure.Repositories;
-using ModularBackend.Infraestructure.Repositories.Persistance;
-using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Persistance;
-using ModularBackend.Infrastructure.Repositories.Persistence;
+using ModularBackend.Infrastructure.Repositories.Persistance;
+using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Services.Identity;
 using System.Text;
+using ModularBackend.Infrastructure.Repositories.Persistence;
 
-namespace ModularBackend.Infraestructure
+namespace ModularBackend.Infrastructure
 {
     public static class DependencyInjection
     {
@@ -37,7 +35,7 @@ namespace ModularBackend.Infraestructure
             // UoW + repos (ApplicationDbContext)
             services.AddScoped<IUnitOfWork, UnitOfWorkRepository>();
             services.AddScoped<IIdentityUnitOfWork, IdentityUnitOfWorkRepository>();
-            services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
+            services.AddScoped<IProductWriteRepository, ProductRepository>();
             services.AddScoped<IProductReadRepository, ProductReadRepository>();
 
             // Identity

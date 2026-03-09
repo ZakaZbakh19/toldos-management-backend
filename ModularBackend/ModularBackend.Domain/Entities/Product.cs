@@ -51,20 +51,18 @@ namespace ModularBackend.Domain.Entities
 
         public void ChangePrice(Money newBasePrice)
         {
+            if(newBasePrice is null) throw new ArgumentException("New base price is required.", nameof(newBasePrice));
             EnsureActiveForModification();
-
-            if (newBasePrice.Equals(default))
-                throw new ArgumentException("New base price is required.", nameof(newBasePrice));
 
             BasePrice = newBasePrice;
         }
 
         public void Rename(string name)
         {
-            EnsureActiveForModification();
-
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Product name cannot be empty.", nameof(name));
+
+            EnsureActiveForModification();
 
             Name = name.Trim();
         }

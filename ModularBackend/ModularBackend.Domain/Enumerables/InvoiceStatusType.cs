@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ModularBackend.Domain.Enumerables
 {
-    public enum InvoceStatusType
+    public enum InvoiceStatusType
     {
         Draft = 0,
         Issued = 1,

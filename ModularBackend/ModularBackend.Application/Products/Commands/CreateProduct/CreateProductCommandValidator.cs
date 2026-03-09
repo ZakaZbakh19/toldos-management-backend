@@ -8,7 +8,7 @@ using System.Text;
 
 namespace ModularBackend.Application.Products.Commands.CreateProduct
 {
-    public class CreateProductCommandValidator : AbstractValidator<LoginResponseCommand>
+    public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
     {
         public CreateProductCommandValidator()
         {

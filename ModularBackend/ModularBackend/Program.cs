@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ModularBackend.Api;
 using ModularBackend.Api.Middlewares;
 using ModularBackend.Application;
-using ModularBackend.Infraestructure;
+using ModularBackend.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

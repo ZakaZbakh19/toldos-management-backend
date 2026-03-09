@@ -2,6 +2,7 @@
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
+using ModularBackend.Application.Abstractions.Persistence.Products;
 using ModularBackend.Domain.Entities;
 using ModularBackend.Domain.Enumerables;
 using ModularBackend.Domain.ValueObjects;
@@ -13,14 +14,11 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
 {
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Guid>
     {
-        private readonly IProductWriteRepository _productRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IProductRepository _productRepository;
 
-        public CreateProductCommandHandler(IProductWriteRepository productRepository,
-            IUnitOfWork unitOfWork)
+        public CreateProductCommandHandler(IProductRepository productRepository)
         {
             _productRepository = productRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<Guid> Handle(CreateProductCommand command, CancellationToken cancellationToken)
@@ -34,13 +32,6 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
             );
 
             await _productRepository.AddAsync(product, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            await _productRepository.UpdateAsync(product, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            await _productRepository.UpdateAsync(product, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return product.Id;
         }

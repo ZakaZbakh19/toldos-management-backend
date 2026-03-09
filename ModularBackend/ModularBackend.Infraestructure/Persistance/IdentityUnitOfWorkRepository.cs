@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
-using ModularBackend.Infraestructure.Persistance;
-using ModularBackend.Infrastructure.Persistance;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Infrastructure.Repositories.Persistence
+namespace ModularBackend.Infrastructure.Persistance
 {
     public class IdentityUnitOfWorkRepository : IIdentityUnitOfWork
     {
