@@ -17,7 +17,7 @@ public class TokenService : ITokenService
 {
     private readonly JwtSettings _settings;
 
-    public TokenService(IOptions<JwtSettings> options,)
+    public TokenService(IOptions<JwtSettings> options)
     {
         _settings = options.Value;
     }

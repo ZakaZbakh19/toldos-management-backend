@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Identity;
@@ -27,13 +28,13 @@ namespace ModularBackend.Infrastructure.Services.Identity
             UserManager<Users> userManager,
             IRefreshTokenHasher hasher,
             ITokenService tokenService,
-            JwtSettings settings)
+            IOptions<JwtSettings> settings)
         {
             _ctx = ctx;
             _userManager = userManager;
             _hasher = hasher;
             _tokenService = tokenService;
-            _settings = settings;
+            _settings = settings.Value;
         }
 
         public async Task<string> IssueAsync(string userId, CancellationToken ct)
@@ -49,7 +50,7 @@ namespace ModularBackend.Infrastructure.Services.Identity
                 TokenHash = hash,
                 UserId = userId,
                 CreatedAtUtc = now,
-                ExpiresAtUtc = now.AddDays(7),
+                ExpiresAtUtc = now.AddDays(_settings.RefreshTokenDays),
                 RevokedAtUtc = null,
                 RevokedReason = null,
                 ReplacedByTokenId = null
@@ -58,87 +59,76 @@ namespace ModularBackend.Infrastructure.Services.Identity
             _ctx.RefreshTokens.Add(entity);
             await _ctx.SaveChangesAsync(ct);
 
-            return raw; 
+            return raw;
         }
 
         public async Task<TokenAuth> RotateAsync(string refreshRaw, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(refreshRaw))
-                throw new ForbiddenAccessException();
+            {
+                throw new UnauthorizedAccessException("Refresh token is required.");
+            }
 
             var incomingHash = _hasher.Hash(refreshRaw);
 
             var current = await _ctx.RefreshTokens
-                .FirstOrDefaultAsync(x => x.TokenHash == incomingHash, ct);
+                .FirstOrDefaultAsync(x => x.TokenHash == incomingHash, ct)
+                ?? throw new UnauthorizedAccessException("Refresh token is invalid.");
 
-            if (current is null)
-                throw new ForbiddenAccessException();
-
-            // Expirado => re-login
             if (current.ExpiresAtUtc <= DateTime.UtcNow)
-                throw new ForbiddenAccessException();
+            {
+                throw new UnauthorizedAccessException("Refresh token expired.");
+            }
 
-            // Revocado => si fue reemplazado, es reuse/replay => revocar todo lo activo
             if (current.RevokedAtUtc is not null)
             {
                 if (current.ReplacedByTokenId is not null)
                 {
-                    var actives = await _ctx.RefreshTokens
-                        .Where(x => x.UserId == current.UserId &&
-                                    x.RevokedAtUtc == null &&
-                                    x.ExpiresAtUtc > DateTime.UtcNow)
+                    var activeTokens = await _ctx.RefreshTokens
+                        .Where(x => x.UserId == current.UserId && x.RevokedAtUtc == null && x.ExpiresAtUtc > DateTime.UtcNow)
                         .ToListAsync(ct);
 
-                    foreach (var rt in actives)
+                    foreach (var token in activeTokens)
                     {
-                        rt.RevokedAtUtc = DateTime.UtcNow;
-                        rt.RevokedReason = "ReuseDetected";
+                        token.RevokedAtUtc = DateTime.UtcNow;
+                        token.RevokedReason = "ReuseDetected";
                     }
 
                     await _ctx.SaveChangesAsync(ct);
                 }
 
-                throw new ForbiddenAccessException();
+                throw new UnauthorizedAccessException("Refresh token already revoked.");
             }
 
-            var user = await _userManager.FindByIdAsync(current.UserId);
-            if (user is null)
-                throw new ForbiddenAccessException();
+            var user = await _userManager.FindByIdAsync(current.UserId)
+                ?? throw new UnauthorizedAccessException("User not found for refresh token.");
 
-            // Revocar actual
             current.RevokedAtUtc = DateTime.UtcNow;
             current.RevokedReason = "Rotated";
 
-            // Crear nuevo refresh (nueva fila)
-            var newRefreshRaw = CreateRefreshTokenRaw();
-            var newRefreshHash = _hasher.Hash(newRefreshRaw);
-
+            var newRaw = CreateRefreshTokenRaw();
+            var newHash = _hasher.Hash(newRaw);
             var now = DateTime.UtcNow;
 
-            var newEntity = new RefreshToken
+            var newToken = new RefreshToken
             {
                 RefreshTokenId = Guid.NewGuid(),
-                TokenHash = newRefreshHash,
+                TokenHash = newHash,
                 UserId = user.Id,
                 CreatedAtUtc = now,
-                ExpiresAtUtc = now.AddDays(7),
-                RevokedAtUtc = null,
-                RevokedReason = null
+                ExpiresAtUtc = now.AddDays(_settings.RefreshTokenDays)
             };
 
-            _ctx.RefreshTokens.Add(newEntity);
-
-            current.ReplacedByTokenId = newEntity.RefreshTokenId;
+            _ctx.RefreshTokens.Add(newToken);
+            current.ReplacedByTokenId = newToken.RefreshTokenId;
 
             var claims = await _userManager.GetClaimsAsync(user);
+            var accessExpiration = DateTime.UtcNow.AddMinutes(_settings.AccessTokenMinutes);
+            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExpiration, claims);
 
-            var accessExp = DateTime.UtcNow.AddMinutes(15);
-            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExp, claims);
-
-            // Un solo SaveChanges: atómico para rotación normal
             await _ctx.SaveChangesAsync(ct);
 
-            return new TokenAuth(accessToken, accessExp, newRefreshRaw);
+            return new TokenAuth(accessToken, accessExpiration, newRaw);
         }
 
         public async Task RevokeAsync(string refreshRaw, string reason, CancellationToken ct)

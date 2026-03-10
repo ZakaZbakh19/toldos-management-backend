@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
@@ -29,13 +30,13 @@ namespace ModularBackend.Infrastructure.Services.Identity
             SignInManager<Users> signInManager,
             ITokenService tokenService,
             IRefreshTokenService refreshTokenService,
-            JwtSettings settings)
+            IOptions<JwtSettings> options)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _refreshTokenService = refreshTokenService;
-            _settings = settings;
+            _settings = options.Value;
         }
 
         public async Task<TokenAuth> RegisterAsync(string name, string email, string password, CancellationToken ct)
@@ -47,37 +48,36 @@ namespace ModularBackend.Infrastructure.Services.Identity
             if (!result.Succeeded)
                 throw new BusinessRuleViolationException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-            var claims = new List<Claim>()
+            await _userManager.AddClaimsAsync(user, new[]
             {
                 new Claim("permission", "products.manager")
-            };
+            });
 
-            var accessExp = DateTime.UtcNow.AddMinutes(15);
-            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExp, claims);
-
+            var claims = await _userManager.GetClaimsAsync(user);
+            var accessExpiration = DateTime.UtcNow.AddMinutes(_settings.AccessTokenMinutes);
+            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExpiration, claims);
             var refreshRaw = await _refreshTokenService.IssueAsync(user.Id, ct);
 
-            return new TokenAuth(accessToken, accessExp, refreshRaw);
+            return new TokenAuth(accessToken, accessExpiration, refreshRaw);
         }
 
         public async Task<TokenAuth> LoginAsync(string email, string password, CancellationToken ct)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user is null)
-                throw new ForbiddenAccessException();
+            var user = await _userManager.FindByEmailAsync(email)
+                        ?? throw new UnauthorizedAccessException("Invalid credentials.");
 
-            var ok = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
-            if (!ok.Succeeded)
-                throw new ForbiddenAccessException();
+            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+            if (!signInResult.Succeeded)
+            {
+                throw new UnauthorizedAccessException("Invalid credentials.");
+            }
 
             var claims = await _userManager.GetClaimsAsync(user);
-
-            var accessExp = DateTime.UtcNow.AddMinutes(15);
-            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExp, claims);
-
+            var accessExpiration = DateTime.UtcNow.AddMinutes(_settings.AccessTokenMinutes);
+            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExpiration, claims);
             var refreshRaw = await _refreshTokenService.IssueAsync(user.Id, ct);
 
-            return new TokenAuth(accessToken, accessExp, refreshRaw);
+            return new TokenAuth(accessToken, accessExpiration, refreshRaw);
         }
 
         public async Task<TokenAuth> RefreshAsync(string refreshRaw, CancellationToken ct)

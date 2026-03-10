@@ -1,4 +1,5 @@
-﻿using ModularBackend.Application.Abstractions.Identity;
+﻿using Microsoft.Extensions.Options;
+using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Infrastructure.Models.Identity;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,12 @@ namespace ModularBackend.Infrastructure.Services.Identity
     {
         private readonly byte[] _pepperKey;
 
-        public RefreshTokenHasher(JwtSettings settings)
+        public RefreshTokenHasher(IOptions<JwtSettings> settings)
         {
-            if (string.IsNullOrWhiteSpace(settings.SecretKeyRefreshToken))
+            if (string.IsNullOrWhiteSpace(settings.Value.SecretKey))
                 throw new InvalidOperationException("Missing SecretKeyRefreshToken");
 
-            _pepperKey = Encoding.UTF8.GetBytes(settings.SecretKeyRefreshToken);
+            _pepperKey = Encoding.UTF8.GetBytes(settings.Value.SecretKey);
         }
 
         public string Hash(string refreshTokenRaw)

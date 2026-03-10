@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
-using ModularBackend.Infrastructure.Persistance;
-using ModularBackend.Infrastructure.Repositories.Persistance;
+using ModularBackend.Application.Abstractions.Persistence.Product;
+using ModularBackend.Application.Abstractions.Persistence.Products;
 using ModularBackend.Infrastructure.Models.Identity;
+using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Queries;
+using ModularBackend.Infrastructure.Repositories.Persistence;
 using ModularBackend.Infrastructure.Services.Identity;
 using System.Text;
-using ModularBackend.Infrastructure.Repositories.Persistence;
 
 namespace ModularBackend.Infrastructure
 {
@@ -21,9 +24,14 @@ namespace ModularBackend.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // Settings fuertemente tipados
-            services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
-            var jwtSettings = configuration.GetSection("Jwt").Get<JwtSettings>()
-                             ?? throw new InvalidOperationException("Missing Jwt settings.");
+            services.AddOptions<JwtSettings>()
+                .Bind(configuration.GetSection(JwtSettings.SectionName))
+                .Validate(x => !string.IsNullOrWhiteSpace(x.SecretKey), "Jwt:SecretKey is required.")
+                .Validate(x => !string.IsNullOrWhiteSpace(x.Issuer), "Jwt:Issuer is required.")
+                .Validate(x => !string.IsNullOrWhiteSpace(x.Audience), "Jwt:Audience is required.")
+                .Validate(x => x.AccessTokenMinutes > 0, "Jwt:AccessTokenMinutes must be greater than zero.")
+                .Validate(x => x.RefreshTokenDays > 0, "Jwt:RefreshTokenDays must be greater than zero.")
+                .ValidateOnStart();
 
             // DbContexts
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -33,10 +41,15 @@ namespace ModularBackend.Infrastructure
                 options.UseSqlServer(configuration.GetConnectionString("IdentityDevConnection")));
 
             // UoW + repos (ApplicationDbContext)
-            services.AddScoped<IUnitOfWork, UnitOfWorkRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IIdentityUnitOfWork, IdentityUnitOfWorkRepository>();
-            services.AddScoped<IProductWriteRepository, ProductRepository>();
-            services.AddScoped<IProductReadRepository, ProductReadRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductQuery, ProductQuery>();
+
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+            services.AddSingleton<IRefreshTokenHasher, RefreshTokenHasher>();
+            services.AddScoped<ITokenService, TokenService>();
 
             // Identity
             services.AddIdentityCore<Users>(options =>
@@ -55,10 +68,13 @@ namespace ModularBackend.Infrastructure
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
-            // JWT AuthN
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    var jwtSettings = services.BuildServiceProvider()
+                        .GetRequiredService<IOptions<JwtSettings>>()
+                        .Value;
+
                     options.MapInboundClaims = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -66,30 +82,18 @@ namespace ModularBackend.Infrastructure
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-
                         ValidIssuer = jwtSettings.Issuer,
                         ValidAudience = jwtSettings.Audience,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-                        ClockSkew = TimeSpan.FromMinutes(1)
+                        ClockSkew = TimeSpan.FromSeconds(30)
                     };
                 });
 
-            // Policies
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("ProductManager", p =>
-                {
-                    p.RequireAuthenticatedUser();
-                    p.RequireClaim("permission", "products.manager");
-                });
-
-                options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
+                options.AddPolicy("ProductManager", policy =>
+                    policy.RequireClaim("permission", "products.manager"));
             });
-
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
-            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }
