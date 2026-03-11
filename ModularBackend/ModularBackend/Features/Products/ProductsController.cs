@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Products.Commands.CreateProduct;
 using ModularBackend.Application.Products.Queries.GetProductById;
@@ -10,7 +11,6 @@ namespace ModularBackend.Api.Features.Products
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize (Policy = "ProductManager")]
     public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -20,6 +20,8 @@ namespace ModularBackend.Api.Features.Products
         }
 
         [HttpGet("{id:guid}")]
+        [Authorize(Policy = "ProductManager")]
+        [EnableRateLimiting("authenticated-user-standard")]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
         {
             var dto = await _mediator.Send(new GetProductByIdQuery(id), ct);
@@ -27,6 +29,8 @@ namespace ModularBackend.Api.Features.Products
         }
 
         [HttpPost]
+        [Authorize(Policy = "ProductManager")]
+        [EnableRateLimiting("authenticated-user-standard")]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO dto, CancellationToken ct)
         {
             var command = new CreateProductCommand(

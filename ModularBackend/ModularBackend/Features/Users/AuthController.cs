@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Users.Commands.Auth.Login;
 using ModularBackend.Application.Users.Commands.Auth.Logout;
@@ -20,37 +21,41 @@ namespace ModularBackend.Api.Features.Users
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
+        [EnableRateLimiting("auth-register-ip")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request, CancellationToken ct)
         {
             var sendRequest = new RegisterRequestCommand(request.name, request.email, request.password);
-            var result = await _mediator.Send(sendRequest);
+            var result = await _mediator.Send(sendRequest, ct);
             return Ok(result);
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        [EnableRateLimiting("auth-login-ip")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request, CancellationToken ct)
         {
             var sendRequest = new LoginRequestCommand(request.Email, request.Password);
-            var result = await _mediator.Send(sendRequest);
+            var result = await _mediator.Send(sendRequest, ct);
             return Ok(result);
         }
 
         [HttpPost("refresh")]
         [AllowAnonymous]
-        public async Task<IActionResult> Refresh([FromBody] RefreshRequestCommand dto)
+        [EnableRateLimiting("auth-refresh-ip")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequestDto dto, CancellationToken ct)
         {
-            var sendRequest = new RefreshRequestCommand(dto.refreshRaw);
-            var result = await _mediator.Send(sendRequest);
+            var sendRequest = new RefreshRequestCommand(dto.RefreshRaw);
+            var result = await _mediator.Send(sendRequest, ct);
             return Ok(result);
         }
 
         [HttpPost("logout")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Logout([FromBody] LogoutRequestDto dto)
+        [Authorize]
+        [EnableRateLimiting("auth-logout-user")]
+        public async Task<IActionResult> Logout([FromBody] LogoutRequestDto dto, CancellationToken ct)
         {
             var sendRequest = new LogoutRequestCommand(dto.refreshRaw);
-            var result = await _mediator.Send(sendRequest);
+            await _mediator.Send(sendRequest, ct);
             return NoContent();
         }
     }   

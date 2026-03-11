@@ -7,9 +7,6 @@ using ModularBackend.Application.Products.Queries.GetProductById;
 using ModularBackend.Application.Users.Commands.Auth;
 using ModularBackend.Application.Users.Commands.Auth.Login;
 using ModularBackend.Application.Users.Commands.Auth.Logout;
-using ModularBackend.Application.Users.Commands.Auth.Refresh;
-using ModularBackend.Application.Users.Commands.Auth.Register;
-using ModularBackend.Application.Users.Commands.Register;
 using System.Reflection;
 
 namespace ModularBackend.Application

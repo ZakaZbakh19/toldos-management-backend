@@ -24,24 +24,7 @@ namespace ModularBackend.Infrastructure.Persistance
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            builder.Entity<RefreshToken>(entity =>
-            {
-                entity.HasKey(x => x.RefreshTokenId);
-
-                entity.Property(x => x.TokenHash).IsRequired();
-                entity.HasIndex(x => x.TokenHash).IsUnique();
-
-                entity.HasOne<Users>()
-                    .WithMany()
-                    .HasForeignKey(x => x.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(x => x.ReplacedByToken)
-                    .WithMany()
-                    .HasForeignKey(x => x.ReplacedByTokenId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
+            builder.ApplyConfiguration(new RefreshTokenConfiguration());
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }

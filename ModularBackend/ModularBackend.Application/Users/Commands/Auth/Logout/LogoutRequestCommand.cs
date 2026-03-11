@@ -5,5 +5,5 @@ using System.Text;
 
 namespace ModularBackend.Application.Users.Commands.Auth.Logout
 {
-    public record LogoutRequestCommand(string refreshRaw) : IRequest<Unit>;
+    public record LogoutRequestCommand(string refreshRaw) : ICommandRequest<Unit>;
 }

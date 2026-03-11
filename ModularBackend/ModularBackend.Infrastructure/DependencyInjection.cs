@@ -68,24 +68,26 @@ namespace ModularBackend.Infrastructure
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    var jwtSettings = services.BuildServiceProvider()
-                        .GetRequiredService<IOptions<JwtSettings>>()
-                        .Value;
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer();
 
-                    options.MapInboundClaims = false;
+            services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IOptions<JwtSettings>>((options, jwtOptions) =>
+                {
+                    var jwt = jwtOptions.Value;
+
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
+                        ValidIssuer = jwt.Issuer,
                         ValidateAudience = true,
-                        ValidateLifetime = true,
+                        ValidAudience = jwt.Audience,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings.Issuer,
-                        ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-                        ClockSkew = TimeSpan.FromSeconds(30)
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwt.SecretKey)),
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
                     };
                 });
 

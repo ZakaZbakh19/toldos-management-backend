@@ -9,7 +9,7 @@ using System.Text;
 namespace ModularBackend.Application.Behaviors
 {
     public sealed class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommandRequest<TResponse>
+    where TRequest : ITransactionalCommandRequest<TResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
 

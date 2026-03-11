@@ -24,6 +24,8 @@ namespace ModularBackend.Application.Identity
 
         public RefreshToken? ReplacedByToken { get; set; }
 
+        public Guid TokenFamilyId { get; set; }
+
         public bool IsActive =>
             RevokedAtUtc is null &&
             ExpiresAtUtc > DateTime.UtcNow;

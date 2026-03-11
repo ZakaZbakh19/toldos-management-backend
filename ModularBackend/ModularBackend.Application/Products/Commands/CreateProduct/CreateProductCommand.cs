@@ -14,5 +14,5 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
         string Description,
         CurrencyType Currency,
         bool IsActive = false
-    ) : ICommandRequest<Guid>;
+    ) : ITransactionalCommandRequest<Guid>;
 }

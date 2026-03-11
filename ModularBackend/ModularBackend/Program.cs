@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ModularBackend.Api;
+using ModularBackend.Api.Extensions;
 using ModularBackend.Api.Middlewares;
 using ModularBackend.Application;
 using ModularBackend.Infrastructure;
@@ -15,6 +15,8 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddCustomRateLimiting();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,14 +25,13 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseMiddleware<LoggingMiddleware>();
-
-app.UseMiddleware<ExceptionsMiddleware>();
-
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
+app.UseMiddleware<ExceptionsMiddleware>();
+app.UseMiddleware<LoggingMiddleware>();
 
+app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();
