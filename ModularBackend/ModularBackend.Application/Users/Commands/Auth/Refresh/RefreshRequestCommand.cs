@@ -7,5 +7,5 @@ using System.Windows.Input;
 
 namespace ModularBackend.Application.Users.Commands.Auth.Refresh
 {
-    public record RefreshRequestCommand(string refreshRaw) : ICommandRequest<AuthResponseCommand>;
+    public record RefreshRequestCommand(string refreshRaw) : ICommandRequest<AuthResponseDTO>;
 }

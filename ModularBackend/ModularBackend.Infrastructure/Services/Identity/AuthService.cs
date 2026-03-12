@@ -7,6 +7,7 @@ using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Identity;
 using ModularBackend.Domain.Exceptions;
+using ModularBackend.Infrastructure.Exceptions;
 using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Persistance;
 using System;
@@ -46,7 +47,7 @@ namespace ModularBackend.Infrastructure.Services.Identity
             var result = await _userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
-                throw new BusinessRuleViolationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new IdentityOperationException();
 
             await _userManager.AddClaimsAsync(user, new[]
             {
@@ -55,8 +56,8 @@ namespace ModularBackend.Infrastructure.Services.Identity
 
             var claims = await _userManager.GetClaimsAsync(user);
             var accessExpiration = DateTime.UtcNow.AddMinutes(_settings.AccessTokenMinutes);
-            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExpiration, claims);
             var refreshRaw = await _refreshTokenService.IssueAsync(user.Id, ct);
+            var accessToken = _tokenService.GenerateToken(user.Id, user.Email!, accessExpiration, claims);
 
             return new TokenAuth(accessToken, accessExpiration, refreshRaw);
         }

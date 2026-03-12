@@ -22,6 +22,9 @@ namespace ModularBackend.Api.Features.Products
         [HttpGet("{id:guid}")]
         [Authorize(Policy = "ProductManager")]
         [EnableRateLimiting("authenticated-user-standard")]
+        [ProducesResponseType<ProductDetailDTO>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
         {
             var dto = await _mediator.Send(new GetProductByIdQuery(id), ct);
@@ -31,6 +34,9 @@ namespace ModularBackend.Api.Features.Products
         [HttpPost]
         [Authorize(Policy = "ProductManager")]
         [EnableRateLimiting("authenticated-user-standard")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO dto, CancellationToken ct)
         {
             var command = new CreateProductCommand(
@@ -42,9 +48,9 @@ namespace ModularBackend.Api.Features.Products
                 dto.IsActive
             );
 
-            var id = await _mediator.Send(command, ct);
+            var product = await _mediator.Send(command, ct);
 
-            return CreatedAtAction(nameof(GetById), new { id }, null);
+            return CreatedAtAction(nameof(GetById), new { product.Id }, product);
         }
     }
 }

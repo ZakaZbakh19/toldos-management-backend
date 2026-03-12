@@ -1,24 +1,31 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ModularBackend.Api.Extensions;
 
 public static class RateLimitingExtensions
 {
-    public static IServiceCollection AddCustomRateLimiting(this IServiceCollection services)
+    public static IServiceCollection AddCustomRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            var loginLimit = configuration.GetValue<int>("RateLimiting:AuthLoginPermitLimit");
+            var registerLimit = configuration.GetValue<int>("RateLimiting:AuthRegisterPermitLimit");
+            var refreshLimit = configuration.GetValue<int>("RateLimiting:AuthRefreshPermitLimit");
+            var logoutLimit = configuration.GetValue<int>("RateLimiting:AuthLogoutPermitLimit");
+            var authLimit = configuration.GetValue<int>("RateLimiting:AuthPermitLimit");
 
             options.AddPolicy("auth-login-ip", httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip",
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 5,
+                        PermitLimit = loginLimit,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true
@@ -29,7 +36,7 @@ public static class RateLimitingExtensions
                     partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip",
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 3,
+                        PermitLimit = registerLimit,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true
@@ -40,7 +47,7 @@ public static class RateLimitingExtensions
                     partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip",
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 10,
+                        PermitLimit = refreshLimit,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true
@@ -51,7 +58,7 @@ public static class RateLimitingExtensions
                     partitionKey: GetUserPartitionKey(httpContext),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 20,
+                        PermitLimit = logoutLimit,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true
@@ -62,8 +69,8 @@ public static class RateLimitingExtensions
                     partitionKey: GetUserPartitionKey(httpContext),
                     factory: _ => new TokenBucketRateLimiterOptions
                     {
-                        TokenLimit = 60,
-                        TokensPerPeriod = 60,
+                        TokenLimit = authLimit,
+                        TokensPerPeriod = authLimit,
                         ReplenishmentPeriod = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using ModularBackend.Api.Extensions;
 using ModularBackend.Api.Middlewares;
 using ModularBackend.Application;
@@ -15,20 +16,55 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddCustomRateLimiting();
+builder.Services.AddCustomRateLimiting(builder.Configuration);
+builder.Services.AddCustomCors(builder.Configuration);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ToldosAPI",
+        Version = "v1",
+        Description = "Api para gestion de Deco Llavaneres",
+        Contact = new OpenApiContact
+        {
+            Name = "Zakariae Zbakh",
+            Email = "zzbakh444@gmail.com"
+        }
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Introduce el token JWT. Ejemplo: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("bearer", document)] = []
+    });
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    //app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionsMiddleware>();
 app.UseMiddleware<LoggingMiddleware>();
+
+app.UseCors(CorsExtensions.FrontendPolicy);
 
 app.UseAuthentication();
 app.UseRateLimiter();

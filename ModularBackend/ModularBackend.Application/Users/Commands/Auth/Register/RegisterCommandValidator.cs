@@ -7,6 +7,7 @@ namespace ModularBackend.Application.Users.Commands.Auth.Register
         public RegisterCommandValidator()
         {
             RuleFor(x => x.email)
+                .NotEmpty().WithMessage("Email is required.")
                 .EmailAddress().WithMessage("Invalid email format.");
 
             RuleFor(x => x.password)

@@ -6,9 +6,10 @@ using System.Linq;
 
 namespace ModularBackend.Api.Middlewares;
 
-using System.Diagnostics;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using ModularBackend.Infrastructure.Exceptions;
+using System.Diagnostics;
 
 public sealed class ExceptionsMiddleware
 {
@@ -77,6 +78,20 @@ public sealed class ExceptionsMiddleware
 
         var (statusCode, title, detail, type) = exception switch
         {
+            ValidationException => (
+                StatusCodes.Status400BadRequest,
+                "Validation failed",
+                exception.Message,
+                "https://httpstatuses.com/400"
+            ),
+
+            IdentityOperationException => (
+                StatusCodes.Status400BadRequest,
+                "Identity operation failed",
+                exception.Message,
+                "https://httpstatuses.com/400"
+            ),
+
             NotFoundException => (
                 StatusCodes.Status404NotFound,
                 "Resource not found",
@@ -94,8 +109,22 @@ public sealed class ExceptionsMiddleware
             UnauthorizedAccessException => (
                 StatusCodes.Status401Unauthorized,
                 "Unauthorized",
-                "You are not authorized to perform this action.",
+                exception.Message,
                 "https://httpstatuses.com/401"
+            ),
+
+            ArgumentNullException => (
+                StatusCodes.Status400BadRequest,
+                "Missing required argument",
+                exception.Message,
+                "https://httpstatuses.com/400"
+            ),
+
+            ArgumentException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid request",
+                exception.Message,
+                "https://httpstatuses.com/400"
             ),
 
             _ => (

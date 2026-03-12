@@ -3,7 +3,7 @@ using ModularBackend.Application.Abstractions.Messaging.Mediator;
 
 namespace ModularBackend.Application.Users.Commands.Auth.Register
 {
-    public class RegisterCommandHandler : IRequestHandler<RegisterRequestCommand, AuthResponseCommand>
+    public class RegisterCommandHandler : IRequestHandler<RegisterRequestCommand, AuthResponseDTO>
     {
         private readonly IAuthService _userService;
 
@@ -12,7 +12,7 @@ namespace ModularBackend.Application.Users.Commands.Auth.Register
             _userService = userService;
         }
 
-        public async Task<AuthResponseCommand> Handle(RegisterRequestCommand request, CancellationToken cancellationToken)
+        public async Task<AuthResponseDTO> Handle(RegisterRequestCommand request, CancellationToken cancellationToken)
         {
             var token = await _userService.RegisterAsync(request.name, request.email, request.password, cancellationToken);
 
@@ -21,7 +21,7 @@ namespace ModularBackend.Application.Users.Commands.Auth.Register
             if (string.IsNullOrEmpty(token.RefreshToken))
                 throw new ArgumentException();
 
-            return new AuthResponseCommand(token.Token, token.RefreshToken, token.ExpirateAt);
+            return new AuthResponseDTO(token.Token, token.RefreshToken, token.ExpirateAt);
         }
     }
 }

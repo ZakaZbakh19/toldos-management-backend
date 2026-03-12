@@ -27,6 +27,7 @@ namespace ModularBackend.Infrastructure
             services.AddOptions<JwtSettings>()
                 .Bind(configuration.GetSection(JwtSettings.SectionName))
                 .Validate(x => !string.IsNullOrWhiteSpace(x.SecretKey), "Jwt:SecretKey is required.")
+                .Validate(x => x.SecretKey.Length >= 32, "Jwt:SecretKey must be at least 32 characters.")
                 .Validate(x => !string.IsNullOrWhiteSpace(x.Issuer), "Jwt:Issuer is required.")
                 .Validate(x => !string.IsNullOrWhiteSpace(x.Audience), "Jwt:Audience is required.")
                 .Validate(x => x.AccessTokenMinutes > 0, "Jwt:AccessTokenMinutes must be greater than zero.")
@@ -58,8 +59,9 @@ namespace ModularBackend.Infrastructure
 
                 options.Password.RequiredLength = 8;
                 options.Password.RequireDigit = true;
-                options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
 
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);

@@ -5,5 +5,5 @@ using System.Text;
 
 namespace ModularBackend.Application.Users.Commands.Auth.Login
 {
-    public record LoginRequestCommand(string email, string password) : ICommandRequest<AuthResponseCommand>;
+    public record LoginRequestCommand(string email, string password) : ICommandRequest<AuthResponseDTO>;
 }

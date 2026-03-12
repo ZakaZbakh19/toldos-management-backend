@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ModularBackend.Application.Users.Commands.Auth.Login
 {
-    public class LoginCommandHandler : IRequestHandler<LoginRequestCommand, AuthResponseCommand>
+    public class LoginCommandHandler : IRequestHandler<LoginRequestCommand, AuthResponseDTO>
     {
         private readonly IAuthService _userService;
 
@@ -15,7 +15,7 @@ namespace ModularBackend.Application.Users.Commands.Auth.Login
             _userService = userService;
         }
 
-        public async Task<AuthResponseCommand> Handle(LoginRequestCommand request, CancellationToken cancellationToken)
+        public async Task<AuthResponseDTO> Handle(LoginRequestCommand request, CancellationToken cancellationToken)
         {
             var token = await _userService.LoginAsync(request.email, request.password, cancellationToken);
 
@@ -24,7 +24,7 @@ namespace ModularBackend.Application.Users.Commands.Auth.Login
             if (string.IsNullOrEmpty(token.RefreshToken))
                 throw new ArgumentException();
 
-            return new AuthResponseCommand(token.Token, token.RefreshToken, token.ExpirateAt);
+            return new AuthResponseDTO(token.Token, token.RefreshToken, token.ExpirateAt);
         }
     }
 }

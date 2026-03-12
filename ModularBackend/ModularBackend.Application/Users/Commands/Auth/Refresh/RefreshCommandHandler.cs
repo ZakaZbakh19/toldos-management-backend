@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ModularBackend.Application.Users.Commands.Auth.Refresh
 {
-    public class RefreshCommandHandler : IRequestHandler<RefreshRequestCommand, AuthResponseCommand>
+    public class RefreshCommandHandler : IRequestHandler<RefreshRequestCommand, AuthResponseDTO>
     {
         private readonly IAuthService _authService;
 
@@ -15,7 +15,7 @@ namespace ModularBackend.Application.Users.Commands.Auth.Refresh
             _authService = authService;
         }
 
-        public async Task<AuthResponseCommand> Handle(RefreshRequestCommand request, CancellationToken cancellationToken)
+        public async Task<AuthResponseDTO> Handle(RefreshRequestCommand request, CancellationToken cancellationToken)
         {
             var token = await _authService.RefreshAsync(request.refreshRaw, cancellationToken);
 
@@ -24,7 +24,7 @@ namespace ModularBackend.Application.Users.Commands.Auth.Refresh
             if (string.IsNullOrEmpty(token.RefreshToken))
                 throw new ArgumentException();
 
-            return new AuthResponseCommand(token.Token, token.RefreshToken, token.ExpirateAt);
+            return new AuthResponseDTO(token.Token, token.RefreshToken, token.ExpirateAt);
         }
     }
 }

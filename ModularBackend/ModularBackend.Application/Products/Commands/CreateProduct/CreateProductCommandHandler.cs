@@ -12,7 +12,7 @@ using System.Text;
 
 namespace ModularBackend.Application.Products.Commands.CreateProduct
 {
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Guid>
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, CreateProductDTO>
     {
         private readonly IProductRepository _productRepository;
 
@@ -21,7 +21,7 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
             _productRepository = productRepository;
         }
 
-        public async Task<Guid> Handle(CreateProductCommand command, CancellationToken cancellationToken)
+        public async Task<CreateProductDTO> Handle(CreateProductCommand command, CancellationToken cancellationToken)
         {
             var product = new Product(
                 command.Name,
@@ -33,7 +33,10 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
 
             await _productRepository.AddAsync(product, cancellationToken);
 
-            return product.Id;
+            return new CreateProductDTO(Id: product.Id,
+                Name: product.Name,
+                Description: product.Description,
+                Price: product.BasePrice.Amount);
         }
     }
 }

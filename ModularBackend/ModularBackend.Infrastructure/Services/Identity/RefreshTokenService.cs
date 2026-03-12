@@ -174,15 +174,14 @@ namespace ModularBackend.Infrastructure.Services.Identity
         public async Task RevokeAsync(string refreshRaw, string reason, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(refreshRaw))
-                return;
+                throw new InvalidRefreshTokenException();
 
             var hash = _hasher.Hash(refreshRaw);
 
             var current = await _ctx.RefreshTokens
-                .FirstOrDefaultAsync(x => x.TokenHash == hash, ct);
-
-            if (current is null)
-                return;
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.TokenHash == hash, ct)
+                ?? throw new InvalidRefreshTokenException();
 
             if (current.RevokedAtUtc is null)
             {
