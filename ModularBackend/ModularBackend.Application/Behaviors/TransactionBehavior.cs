@@ -31,7 +31,6 @@ namespace ModularBackend.Application.Behaviors
             {
                 var response = await next();
 
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitAsync(cancellationToken);
 
                 return response;

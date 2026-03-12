@@ -15,10 +15,12 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, CreateProductDTO>
     {
         private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateProductCommandHandler(IProductRepository productRepository)
+        public CreateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
         {
             _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CreateProductDTO> Handle(CreateProductCommand command, CancellationToken cancellationToken)
@@ -32,6 +34,7 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
             );
 
             await _productRepository.AddAsync(product, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new CreateProductDTO(Id: product.Id,
                 Name: product.Name,
