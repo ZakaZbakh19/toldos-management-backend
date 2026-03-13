@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Identity;
 using ModularBackend.Infrastructure.Exceptions;
 using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Persistance;
-using System;
-using System.Collections.Generic;
-using System.Runtime;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace ModularBackend.Infrastructure.Services.Identity
 {
@@ -21,6 +16,7 @@ namespace ModularBackend.Infrastructure.Services.Identity
         private static readonly TimeSpan ReuseGraceWindow = TimeSpan.FromSeconds(2);
 
         private readonly IdentityUsersDbContext _ctx;
+        private readonly IIdentityUnitOfWork _unitOfWork;
         private readonly UserManager<Users> _userManager;
         private readonly IRefreshTokenHasher _hasher;
         private readonly ITokenService _tokenService;
@@ -31,13 +27,15 @@ namespace ModularBackend.Infrastructure.Services.Identity
             UserManager<Users> userManager,
             IRefreshTokenHasher hasher,
             ITokenService tokenService,
-            IOptions<JwtSettings> settings)
+            IOptions<JwtSettings> settings,
+            IIdentityUnitOfWork unitOfWork)
         {
             _ctx = ctx;
             _userManager = userManager;
             _hasher = hasher;
             _tokenService = tokenService;
             _settings = settings.Value;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> IssueAsync(string userId, CancellationToken ct)
@@ -61,7 +59,7 @@ namespace ModularBackend.Infrastructure.Services.Identity
             };
 
             _ctx.RefreshTokens.Add(entity);
-            await _ctx.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct);
 
             return raw;
         }
@@ -101,7 +99,7 @@ namespace ModularBackend.Infrastructure.Services.Identity
 
             var claims = await _userManager.GetClaimsAsync(user);
 
-            await using var tx = await _ctx.Database.BeginTransactionAsync(ct);
+            await _unitOfWork.BeginTransactionAsync(ct);
 
             // Consumo atómico del refresh token actual
             var affectedRows = await _ctx.RefreshTokens
@@ -116,7 +114,7 @@ namespace ModularBackend.Infrastructure.Services.Identity
 
             if (affectedRows == 0)
             {
-                await tx.RollbackAsync(ct);
+                await _unitOfWork.RollbackAsync(ct);
                 throw new RefreshTokenAlreadyConsumedException();
             }
 
@@ -142,15 +140,15 @@ namespace ModularBackend.Infrastructure.Services.Identity
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.ReplacedByTokenId, newRefreshTokenId), ct);
 
+            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.CommitAsync(ct);
+
             var accessExpiresAt = now.AddMinutes(_settings.AccessTokenMinutes);
             var accessToken = _tokenService.GenerateToken(
                 user.Id,
                 user.Email!,
                 accessExpiresAt,
                 claims);
-
-            await _ctx.SaveChangesAsync(ct);
-            await tx.CommitAsync(ct);
 
             return new TokenAuth(accessToken, accessExpiresAt, newRaw);
         }
