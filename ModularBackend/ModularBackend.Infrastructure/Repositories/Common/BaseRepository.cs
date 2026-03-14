@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModularBackend.Domain.Abstractions;
-using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Persistance.Context;
 using System;
 using System.Collections.Generic;
 using System.Text;

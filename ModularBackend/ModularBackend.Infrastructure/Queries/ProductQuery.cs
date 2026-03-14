@@ -3,7 +3,7 @@ using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Products.Queries.GetProductById;
 using ModularBackend.Domain.Entities;
-using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Persistance.Context;
 using ModularBackend.Infrastructure.Repositories.Common;
 using System;
 using System.Collections.Generic;

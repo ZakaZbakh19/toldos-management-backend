@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ModularBackend.Application.Identity;
 
-namespace ModularBackend.Infrastructure.Persistance;
+namespace ModularBackend.Infrastructure.Persistance.Configuration;
 
 public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {

@@ -1,6 +1,6 @@
 ﻿using ModularBackend.Application.Abstractions.Persistence.Products;
 using ModularBackend.Domain.Entities;
-using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Persistance.Context;
 using ModularBackend.Infrastructure.Repositories.Common;
 
 namespace ModularBackend.Infrastructure.Repositories.Persistence

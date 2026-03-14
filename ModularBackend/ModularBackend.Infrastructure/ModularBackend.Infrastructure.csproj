@@ -16,8 +16,4 @@
     <ProjectReference Include="..\ModularBackend.Application\ModularBackend.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ConfigurationsEntities\" />
-  </ItemGroup>
-
 </Project>

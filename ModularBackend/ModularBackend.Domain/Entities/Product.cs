@@ -1,4 +1,5 @@
 ﻿using ModularBackend.Domain.Abstractions;
+using ModularBackend.Domain.Events;
 using ModularBackend.Domain.Exceptions;
 using ModularBackend.Domain.ValueObjects;
 
@@ -33,6 +34,8 @@ namespace ModularBackend.Domain.Entities
             BasePrice = basePrice;
             Description = description?.Trim() ?? string.Empty;
             IsActive = isActive;
+
+            AddDomainEvent(new ProductCreatedDomainEvent(Id, Name, BasePrice.Amount));
         }
 
         public void ChangeDescription(string? description)

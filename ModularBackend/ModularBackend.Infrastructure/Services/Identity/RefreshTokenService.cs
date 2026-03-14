@@ -6,7 +6,7 @@ using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Identity;
 using ModularBackend.Infrastructure.Exceptions;
 using ModularBackend.Infrastructure.Models.Identity;
-using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Persistance.Context;
 using System.Security.Cryptography;
 
 namespace ModularBackend.Infrastructure.Services.Identity

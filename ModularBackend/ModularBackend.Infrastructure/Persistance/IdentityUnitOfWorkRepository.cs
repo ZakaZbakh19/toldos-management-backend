@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using ModularBackend.Application.Abstractions.Events;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
+using ModularBackend.Infrastructure.Persistance.Context;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,13 +14,10 @@ namespace ModularBackend.Infrastructure.Persistance
     {
         private readonly IdentityUsersDbContext _dbContext;
         private IDbContextTransaction? _currentTransaction;
-        private readonly INotificationPublisher _publisher;
 
-        public IdentityUnitOfWorkRepository(IdentityUsersDbContext applicationDbContext,
-            INotificationPublisher publisher)
+        public IdentityUnitOfWorkRepository(IdentityUsersDbContext applicationDbContext)
         {
             _dbContext = applicationDbContext;
-            _publisher = publisher;
         }
 
         public bool HasActiveTransaction => _currentTransaction is not null;
@@ -44,8 +42,6 @@ namespace ModularBackend.Infrastructure.Persistance
 
             await _currentTransaction.CommitAsync(cancellationToken);
 
-            await PublishEvents(cancellationToken);
-
             await _currentTransaction.DisposeAsync();
             _currentTransaction = null;
         }
@@ -58,17 +54,6 @@ namespace ModularBackend.Infrastructure.Persistance
             await _currentTransaction.RollbackAsync(cancellationToken);
             await _currentTransaction.DisposeAsync();
             _currentTransaction = null;
-        }
-
-        private async Task PublishEvents(CancellationToken ct)
-        {
-            var events = _dbContext.CollectDomainEvents();
-            foreach (var domainEvent in events)
-            {
-                var notification = Map(domainEvent);
-                await _publisher.Publish(notification, ct);
-            }
-
         }
     }
 }

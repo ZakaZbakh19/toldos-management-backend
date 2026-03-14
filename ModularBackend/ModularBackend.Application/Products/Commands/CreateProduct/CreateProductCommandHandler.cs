@@ -34,7 +34,6 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
             );
 
             await _productRepository.AddAsync(product, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new CreateProductDTO(Id: product.Id,
                 Name: product.Name,

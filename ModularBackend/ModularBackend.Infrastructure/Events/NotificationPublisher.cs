@@ -8,16 +8,28 @@ namespace ModularBackend.Infrastructure.Events
 {
     public sealed class NotificationPublisher : INotificationPublisher
     {
-        private readonly IServiceProvider _sp;
-        public NotificationPublisher(IServiceProvider sp) => _sp = sp;
-        public async Task Publish(INotification notification, CancellationToken ct)
+        private readonly IServiceProvider _serviceProvider;
+
+        public NotificationPublisher(IServiceProvider serviceProvider)
         {
-            var handlers = _sp.GetServices(
-            typeof(INotificationHandler<>)
-            .MakeGenericType(notification.GetType()));
-            foreach (dynamic handler in handlers)
+            _serviceProvider = serviceProvider;
+        }
+
+        public async Task Publish(INotification notification, CancellationToken cancellationToken = default)
+        {
+            var handlerType = typeof(INotificationHandler<>).MakeGenericType(notification.GetType());
+            var handlers = _serviceProvider.GetServices(handlerType);
+
+            foreach (var handler in handlers)
             {
-                await handler.Handle((dynamic)notification, ct);
+                var method = handlerType.GetMethod("Handle")
+                             ?? throw new InvalidOperationException("Handle method not found.");
+
+                var task = (Task?)method.Invoke(handler, new object[] { notification, cancellationToken });
+                if (task is null)
+                    throw new InvalidOperationException("Handler returned null task.");
+
+                await task;
             }
         }
     }

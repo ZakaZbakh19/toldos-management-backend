@@ -1,5 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
+using ModularBackend.Application.Abstractions.Events;
 using ModularBackend.Application.Abstractions.Persistance;
+using ModularBackend.Application.Products.Events;
+using ModularBackend.Domain.Abstractions;
+using ModularBackend.Domain.Events;
+using ModularBackend.Infrastructure.Outbox;
+using ModularBackend.Infrastructure.Persistance.Context;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,10 +16,13 @@ namespace ModularBackend.Infrastructure.Persistance
     {
         private readonly ApplicationDbContext _dbContext;
         private IDbContextTransaction? _currentTransaction;
+        private readonly INotificationPublisher _publisher;
 
-        public UnitOfWork(ApplicationDbContext dbContext)
+        public UnitOfWork(ApplicationDbContext dbContext,
+            INotificationPublisher notificationPublisher)
         {
             _dbContext = dbContext;
+            _publisher = notificationPublisher;
         }
 
         public bool HasActiveTransaction => _currentTransaction is not null;
@@ -28,6 +37,16 @@ namespace ModularBackend.Infrastructure.Persistance
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            var domainEvents = _dbContext.CollectDomainEvents();
+
+            var outboxMessages = OutboxMessageFactory.Create(domainEvents);
+
+            if (outboxMessages.Count > 0)
+            {
+                await _dbContext.Set<OutboxMessage>()
+                    .AddRangeAsync(outboxMessages, cancellationToken);
+            }
+
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
@@ -36,7 +55,16 @@ namespace ModularBackend.Infrastructure.Persistance
             if (_currentTransaction is null)
                 throw new InvalidOperationException("No active transaction.");
 
+            var events = _dbContext.CollectDomainEvents(deleteDomainsEvents: true);
+
             await _currentTransaction.CommitAsync(cancellationToken);
+
+            foreach (var domainEvent in events)
+            {
+                var notification = EventsMaps.Map(domainEvent);
+                await _publisher.Publish(notification, cancellationToken);
+            }
+
             await _currentTransaction.DisposeAsync();
             _currentTransaction = null;
         }

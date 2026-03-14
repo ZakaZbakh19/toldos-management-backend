@@ -12,6 +12,7 @@ using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Abstractions.Persistence.Products;
 using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Infrastructure.Persistance.Context;
 using ModularBackend.Infrastructure.Queries;
 using ModularBackend.Infrastructure.Repositories.Persistence;
 using ModularBackend.Infrastructure.Services.Identity;

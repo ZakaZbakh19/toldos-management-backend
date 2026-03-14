@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModularBackend.Domain.Entities;
+using ModularBackend.Infrastructure.Persistance.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Infrastructure.Persistance
+namespace ModularBackend.Infrastructure.Persistance.Context
 {
     public class ApplicationDbContext : DbContext
     {

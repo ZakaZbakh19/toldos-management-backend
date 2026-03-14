@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Infrastructure.Persistance
+namespace ModularBackend.Infrastructure.Persistance.Context
 {
     public class IdentityUsersDbContext : IdentityDbContext<Users>
     {
