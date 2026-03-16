@@ -4,9 +4,10 @@ using System.Text;
 
 namespace ModularBackend.Application.IntegrationEvents
 {
-    public sealed record ProductCreatedIntegrationEvent(string name, decimal price) : IIntegrationEvent
-    {
-        public Guid EventId => Guid.NewGuid();
-        public DateTime OccurredOnUtc => DateTime.UtcNow;
-    }
+    public sealed record ProductCreatedIntegrationEvent(
+        Guid EventId,
+        DateTime OccurredOnUtc,
+        Guid ProductId,
+        string Name,
+        decimal Price) : IIntegrationEvent;
 }

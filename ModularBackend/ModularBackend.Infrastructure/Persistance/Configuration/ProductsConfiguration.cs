@@ -9,7 +9,7 @@ using System.Text;
 
 namespace ModularBackend.Infrastructure.Persistance.Configuration
 {
-    public class ProductsConfig : IEntityTypeConfiguration<Product>
+    public class ProductsConfiguration : IEntityTypeConfiguration<Product>
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {

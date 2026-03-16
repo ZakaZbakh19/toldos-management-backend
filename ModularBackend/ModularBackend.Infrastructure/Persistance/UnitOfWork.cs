@@ -15,68 +15,69 @@ namespace ModularBackend.Infrastructure.Persistance
     public sealed class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _dbContext;
-        private IDbContextTransaction? _currentTransaction;
-        private readonly INotificationPublisher _publisher;
+        private readonly INotificationPublisher _notificationPublisher;
+        private IDbContextTransaction? _transaction;
+        private List<IDomainEvent> _committedDomainEvents = new();
 
-        public UnitOfWork(ApplicationDbContext dbContext,
+        public bool HasActiveTransaction => _transaction is not null;
+
+        public UnitOfWork(
+            ApplicationDbContext dbContext,
             INotificationPublisher notificationPublisher)
         {
             _dbContext = dbContext;
-            _publisher = notificationPublisher;
+            _notificationPublisher = notificationPublisher;
         }
 
-        public bool HasActiveTransaction => _currentTransaction is not null;
-
-        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
+        public async Task BeginTransactionAsync(CancellationToken ct = default)
         {
-            if (_currentTransaction is not null)
-                return;
-
-            _currentTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            if (_transaction is not null) return;
+            _transaction = await _dbContext.Database.BeginTransactionAsync(ct);
         }
 
-        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        public async Task SaveChangesAsync(CancellationToken ct = default)
         {
-            var domainEvents = _dbContext.CollectDomainEvents();
+            var domainEvents = _dbContext.CollectDomainEvents(deleteDomainsEvents: true).ToList();
 
             var outboxMessages = OutboxMessageFactory.Create(domainEvents);
 
             if (outboxMessages.Count > 0)
-            {
-                await _dbContext.Set<OutboxMessage>()
-                    .AddRangeAsync(outboxMessages, cancellationToken);
-            }
+                await _dbContext.OutboxMessages.AddRangeAsync(outboxMessages, ct);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(ct);
+
+            _committedDomainEvents.AddRange(domainEvents);
         }
 
-        public async Task CommitAsync(CancellationToken cancellationToken = default)
+        public async Task CommitAsync(CancellationToken ct = default)
         {
-            if (_currentTransaction is null)
+            if (_transaction is null)
                 throw new InvalidOperationException("No active transaction.");
 
-            var events = _dbContext.CollectDomainEvents(deleteDomainsEvents: true);
+            await _transaction.CommitAsync(ct);
+            await _transaction.DisposeAsync();
+            _transaction = null;
 
-            await _currentTransaction.CommitAsync(cancellationToken);
-
-            foreach (var domainEvent in events)
+            foreach (var domainEvent in _committedDomainEvents)
             {
                 var notification = EventsMaps.Map(domainEvent);
-                await _publisher.Publish(notification, cancellationToken);
+                if (notification is not null)
+                {
+                    await _notificationPublisher.Publish(notification, ct);
+                }
             }
 
-            await _currentTransaction.DisposeAsync();
-            _currentTransaction = null;
+            _committedDomainEvents.Clear();
         }
 
-        public async Task RollbackAsync(CancellationToken cancellationToken = default)
+        public async Task RollbackAsync(CancellationToken ct = default)
         {
-            if (_currentTransaction is null)
-                return;
+            if (_transaction is null) return;
 
-            await _currentTransaction.RollbackAsync(cancellationToken);
-            await _currentTransaction.DisposeAsync();
-            _currentTransaction = null;
+            await _transaction.RollbackAsync(ct);
+            await _transaction.DisposeAsync();
+            _transaction = null;
+            _committedDomainEvents.Clear();
         }
     }
 }

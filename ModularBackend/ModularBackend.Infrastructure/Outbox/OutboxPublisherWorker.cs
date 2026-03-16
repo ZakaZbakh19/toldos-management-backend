@@ -53,9 +53,15 @@ namespace ModularBackend.Infrastructure.Outbox
                                 message.ProcessedOnUtc = DateTime.UtcNow;
                                 message.Error = null;
                             }
+                            else
+                            {
+                                throw new InvalidOperationException($"Unknown integration event type: {message.Type}");
+                            }
                         }
                         catch (Exception ex)
                         {
+                            message.Attempts++;
+                            message.LastAttemptOnUtc = DateTime.UtcNow;
                             message.Error = ex.Message;
                             _logger.LogError(ex, "Error publishing outbox message {MessageId}", message.Id);
                         }

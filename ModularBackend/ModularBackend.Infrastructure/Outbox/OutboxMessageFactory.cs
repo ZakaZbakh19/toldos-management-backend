@@ -20,9 +20,11 @@ namespace ModularBackend.Infrastructure.Outbox
                 {
                     case ProductCreatedDomainEvent e:
                         var integrationEvent = new ProductCreatedIntegrationEvent(
-                            name: e.Name,
-                            price: e.Price
-                        );
+                            Guid.NewGuid(),
+                            DateTime.UtcNow,
+                            e.ProductId,
+                            e.Name,
+                            e.Price);
 
                         messages.Add(new OutboxMessage
                         {

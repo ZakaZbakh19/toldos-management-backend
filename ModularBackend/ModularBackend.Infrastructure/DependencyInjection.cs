@@ -5,12 +5,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using ModularBackend.Application.Abstractions.Events;
 using ModularBackend.Application.Abstractions.Identity;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Abstractions.Persistence.Products;
+using ModularBackend.Application.IntegrationEvents;
+using ModularBackend.Infrastructure.Events;
 using ModularBackend.Infrastructure.Models.Identity;
+using ModularBackend.Infrastructure.Outbox;
 using ModularBackend.Infrastructure.Persistance;
 using ModularBackend.Infrastructure.Persistance.Context;
 using ModularBackend.Infrastructure.Queries;
@@ -52,6 +56,10 @@ namespace ModularBackend.Infrastructure
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddSingleton<IRefreshTokenHasher, RefreshTokenHasher>();
             services.AddScoped<ITokenService, TokenService>();
+
+            services.AddScoped<INotificationPublisher, NotificationPublisher>();
+            services.AddSingleton<IIntegrationEventBus, RabbitMqIntegrationEventBus>();
+            services.AddHostedService<OutboxPublisherWorker>();
 
             // Identity
             services.AddIdentityCore<Users>(options =>

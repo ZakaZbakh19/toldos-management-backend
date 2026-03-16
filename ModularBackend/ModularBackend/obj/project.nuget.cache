@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "33HzKqO2PMQ=",
+  "dgSpecHash": "L6aFlNvCTvA=",
   "success": true,
   "projectFilePath": "C:\\Users\\zaka-\\toldos-management-backend\\ModularBackend\\ModularBackend\\ModularBackend.Api.csproj",
   "expectedPackageFiles": [
@@ -45,6 +45,7 @@
     "C:\\Users\\zaka-\\.nuget\\packages\\microsoft.visualstudio.solutionpersistence\\1.0.52\\microsoft.visualstudio.solutionpersistence.1.0.52.nupkg.sha512",
     "C:\\Users\\zaka-\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
     "C:\\Users\\zaka-\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\zaka-\\.nuget\\packages\\rabbitmq.client\\7.2.1\\rabbitmq.client.7.2.1.nupkg.sha512",
     "C:\\Users\\zaka-\\.nuget\\packages\\swashbuckle.aspnetcore\\10.1.5\\swashbuckle.aspnetcore.10.1.5.nupkg.sha512",
     "C:\\Users\\zaka-\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.1.5\\swashbuckle.aspnetcore.swagger.10.1.5.nupkg.sha512",
     "C:\\Users\\zaka-\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\10.1.5\\swashbuckle.aspnetcore.swaggergen.10.1.5.nupkg.sha512",

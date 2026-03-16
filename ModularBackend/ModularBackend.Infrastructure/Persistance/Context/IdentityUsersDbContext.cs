@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ModularBackend.Application.Identity;
 using ModularBackend.Infrastructure.Models.Identity;
+using ModularBackend.Infrastructure.Persistance.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,6 +28,6 @@ namespace ModularBackend.Infrastructure.Persistance.Context
             builder.ApplyConfiguration(new RefreshTokenConfiguration());
         }
 
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     }
 }

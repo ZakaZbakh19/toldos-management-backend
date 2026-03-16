@@ -8,6 +8,7 @@ namespace ModularBackend.Application.IntegrationEvents
     {
         Task PublishAsync<TIntegrationEvent>(
             TIntegrationEvent integrationEvent,
-            CancellationToken cancellationToken = default);
+            CancellationToken cancellationToken = default)
+            where TIntegrationEvent : IIntegrationEvent;
     }
 }

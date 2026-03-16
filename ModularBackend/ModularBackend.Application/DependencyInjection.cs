@@ -1,12 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using ModularBackend.Application.Abstractions.Events;
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Behaviors;
-using ModularBackend.Application.Products.Commands.CreateProduct;
-using ModularBackend.Application.Products.Queries.GetProductById;
-using ModularBackend.Application.Users.Commands.Auth;
-using ModularBackend.Application.Users.Commands.Auth.Login;
-using ModularBackend.Application.Users.Commands.Auth.Logout;
 using System.Reflection;
 
 namespace ModularBackend.Application
@@ -29,25 +25,28 @@ namespace ModularBackend.Application
 
         private static IServiceCollection AddHandlersFromAssembly(this IServiceCollection services, Assembly assembly)
         {
-            var handlerInterfaceType = typeof(IRequestHandler<,>);
+            var requestHandlerType = typeof(IRequestHandler<,>);
+            var notificationHandlerType = typeof(INotificationHandler<>);
 
-            var handlerTypes = assembly
+            var types = assembly
                 .GetTypes()
-                .Where(t => t is { IsAbstract: false, IsInterface: false })
-                .Select(t => new
-                {
-                    Implementation = t,
-                    Contracts = t.GetInterfaces()
-                        .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
-                        .ToArray()
-                })
-                .Where(x => x.Contracts.Length > 0);
+                .Where(t => !t.IsAbstract && !t.IsInterface);
 
-            foreach (var handlerType in handlerTypes)
+            foreach (var type in types)
             {
-                foreach (var contract in handlerType.Contracts)
+                var interfaces = type.GetInterfaces();
+
+                foreach (var contract in interfaces)
                 {
-                    services.AddScoped(contract, handlerType.Implementation);
+                    if (contract.IsGenericType)
+                    {
+                        var definition = contract.GetGenericTypeDefinition();
+
+                        if (definition == requestHandlerType || definition == notificationHandlerType)
+                        {
+                            services.AddScoped(contract, type);
+                        }
+                    }
                 }
             }
 

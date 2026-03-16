@@ -12,5 +12,7 @@ namespace ModularBackend.Infrastructure.Outbox
         public DateTime OccurredOnUtc { get; set; }
         public DateTime? ProcessedOnUtc { get; set; }
         public string? Error { get; set; }
+        public int Attempts { get; set; }
+        public DateTime? LastAttemptOnUtc { get; set; }
     }
 }
