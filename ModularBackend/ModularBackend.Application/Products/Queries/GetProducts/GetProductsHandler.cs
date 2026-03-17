@@ -19,7 +19,7 @@ namespace ModularBackend.Application.Products.Queries.GetProducts
         }
         public async Task<PagedResult<ProductDetailDTO>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            
+            var products = _productQueries.
         }
     }
 }

@@ -20,7 +20,7 @@ namespace ModularBackend.Api.Extensions
                 {
                     policy.WithOrigins(allowedOrigins)
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                          .AllowAnyMethod().WithExposedHeaders("");
                 });
             });
 
