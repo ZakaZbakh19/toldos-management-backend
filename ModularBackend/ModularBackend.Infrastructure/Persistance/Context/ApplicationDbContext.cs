@@ -28,6 +28,4 @@ namespace ModularBackend.Infrastructure.Persistance.Context
             modelBuilder.ApplyConfiguration(new ProcessedIntegrationEventConfiguration());
         }
     }
-
-}
 }

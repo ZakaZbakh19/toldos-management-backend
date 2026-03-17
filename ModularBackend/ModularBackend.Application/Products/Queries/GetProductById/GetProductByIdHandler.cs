@@ -1,6 +1,7 @@
 ﻿using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Exceptions;
+using ModularBackend.Application.Products.Queries.Common;
 
 namespace ModularBackend.Application.Products.Queries.GetProductById
 {

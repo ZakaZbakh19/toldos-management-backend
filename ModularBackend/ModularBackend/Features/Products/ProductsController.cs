@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Products.Commands.CreateProduct;
+using ModularBackend.Application.Products.Queries.Common;
 using ModularBackend.Application.Products.Queries.GetProductById;
 using ModularBackend.Domain.Entities;
 
@@ -11,6 +12,7 @@ namespace ModularBackend.Api.Features.Products
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -26,6 +28,18 @@ namespace ModularBackend.Api.Features.Products
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
+        {
+            var dto = await _mediator.Send(new GetProductByIdQuery(id), ct);
+            return Ok(dto);
+        }
+
+        [HttpGet("{id:guid}")]
+        [Authorize(Policy = "ProductManager")]
+        [EnableRateLimiting("authenticated-user-standard")]
+        [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ProductDetailDTO>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetProducts([FromRoute] GetProductsDto getProductsDto, CancellationToken ct)
         {
             var dto = await _mediator.Send(new GetProductByIdQuery(id), ct);
             return Ok(dto);

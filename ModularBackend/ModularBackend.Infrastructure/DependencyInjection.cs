@@ -12,6 +12,7 @@ using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Abstractions.Persistence.Products;
 using ModularBackend.Application.IntegrationEvents;
+using ModularBackend.Infrastructure.EventBus;
 using ModularBackend.Infrastructure.Events;
 using ModularBackend.Infrastructure.Models.Identity;
 using ModularBackend.Infrastructure.Outbox;

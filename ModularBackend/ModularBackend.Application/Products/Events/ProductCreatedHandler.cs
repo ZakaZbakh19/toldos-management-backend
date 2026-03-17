@@ -1,10 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using ModularBackend.Application.Abstractions.Events;
-using ModularBackend.Application.IntegrationEvents;
-using ModularBackend.Application.OutBox;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ModularBackend.Application.Products.Events
 {

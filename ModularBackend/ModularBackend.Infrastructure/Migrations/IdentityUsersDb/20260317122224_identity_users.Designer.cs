@@ -12,8 +12,8 @@ using ModularBackend.Infrastructure.Persistance.Context;
 namespace ModularBackend.Infrastructure.Migrations.IdentityUsersDb
 {
     [DbContext(typeof(IdentityUsersDbContext))]
-    [Migration("20260312133022_CreateRefreshTokens")]
-    partial class CreateRefreshTokens
+    [Migration("20260317122224_identity_users")]
+    partial class identity_users
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

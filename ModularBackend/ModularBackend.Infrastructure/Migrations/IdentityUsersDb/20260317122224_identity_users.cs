@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ModularBackend.Infrastructure.Migrations.IdentityUsersDb
 {
     /// <inheritdoc />
-    public partial class CreateRefreshTokens : Migration
+    public partial class identity_users : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

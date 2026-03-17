@@ -134,13 +134,14 @@ namespace ModularBackend.Infrastructure.Services.Identity
 
             _ctx.RefreshTokens.Add(newToken);
 
+            await _unitOfWork.SaveChangesAsync(ct);
+
             // Enlazar el token antiguo con el nuevo
             await _ctx.RefreshTokens
                 .Where(x => x.RefreshTokenId == current.RefreshTokenId)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.ReplacedByTokenId, newRefreshTokenId), ct);
 
-            await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitAsync(ct);
 
             var accessExpiresAt = now.AddMinutes(_settings.AccessTokenMinutes);

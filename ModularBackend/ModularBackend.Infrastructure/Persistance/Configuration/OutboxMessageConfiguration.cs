@@ -20,7 +20,7 @@ namespace ModularBackend.Infrastructure.Persistance.Configuration
             builder.Property(x => x.ProcessedOnUtc);
             builder.Property(x => x.Error).HasMaxLength(4000);
             builder.Property(x => x.Attempts).IsRequired();
-            builder.Property(x => x.LastAttemptOnUtc).IsRequired();
+            builder.Property(x => x.LastAttemptOnUtc);
 
             builder.HasIndex(x => new { x.ProcessedOnUtc, x.OccurredOnUtc, x.LastAttemptOnUtc });
         }

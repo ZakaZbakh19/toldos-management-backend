@@ -32,14 +32,14 @@ namespace ModularBackend.Infrastructure.EventBus
                 Password = _options.Password
             };
 
-            _connection = await factory.CreateConnectionAsync();
-            _channel = _connection.CreateModel();
+            //_connection = await factory.CreateConnectionAsync();
+            //_channel = _connection.CreateModel();
 
-            _channel.ExchangeDeclare(
-                exchange: _options.ExchangeName,
-                type: ExchangeType.Topic,
-                durable: true,
-                autoDelete: false);
+            //_channel.ExchangeDeclare(
+            //    exchange: _options.ExchangeName,
+            //    type: ExchangeType.Topic,
+            //    durable: true,
+            //    autoDelete: false);
         }
 
         public Task PublishAsync<TIntegrationEvent>(
@@ -47,38 +47,38 @@ namespace ModularBackend.Infrastructure.EventBus
             CancellationToken cancellationToken = default)
             where TIntegrationEvent : IIntegrationEvent
         {
-            var eventType = integrationEvent switch
-            {
-                ProductCreatedIntegrationEvent => IntegrationEventNames.ProductCreatedV1,
-                _ => throw new InvalidOperationException($"Unknown integration event type: {integrationEvent.GetType().Name}")
-            };
+            //var eventType = integrationEvent switch
+            //{
+            //    ProductCreatedIntegrationEvent => IntegrationEventNames.ProductCreatedV1,
+            //    _ => throw new InvalidOperationException($"Unknown integration event type: {integrationEvent.GetType().Name}")
+            //};
 
-            var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(integrationEvent));
-            var properties = _channel.CreateBasicProperties();
+            //var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(integrationEvent));
+            //var properties = _channel.CreateBasicProperties();
 
-            properties.MessageId = integrationEvent.EventId.ToString("N");
-            properties.Type = eventType;
-            properties.ContentType = "application/json";
-            properties.DeliveryMode = 2;
+            //properties.MessageId = integrationEvent.EventId.ToString("N");
+            //properties.Type = eventType;
+            //properties.ContentType = "application/json";
+            //properties.DeliveryMode = 2;
 
-            _channel.BasicPublish(
-                exchange: _options.ExchangeName,
-                routingKey: eventType,
-                basicProperties: properties,
-                body: body);
+            //_channel.BasicPublish(
+            //    exchange: _options.ExchangeName,
+            //    routingKey: eventType,
+            //    basicProperties: properties,
+            //    body: body);
 
-            _logger.LogInformation(
-                "Published event {EventType} with EventId {EventId}",
-                eventType,
-                integrationEvent.EventId);
+            //_logger.LogInformation(
+            //    "Published event {EventType} with EventId {EventId}",
+            //    eventType,
+            //    integrationEvent.EventId);
 
             return Task.CompletedTask;
         }
 
         public void Dispose()
         {
-            _channel.Dispose();
-            _connection.Dispose();
+            //_channel.Dispose();
+            //_connection.Dispose();
         }
     }
 }

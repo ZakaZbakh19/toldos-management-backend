@@ -1,4 +1,5 @@
 ﻿using ModularBackend.Application.Abstractions.Messaging.Mediator;
+using ModularBackend.Application.Products.Queries.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;

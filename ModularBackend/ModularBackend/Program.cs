@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using ModularBackend.Api.Extensions;
 using ModularBackend.Api.Middlewares;
+using ModularBackend.Api.Swagger;
 using ModularBackend.Application;
 using ModularBackend.Infrastructure;
 
@@ -14,7 +15,6 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
 builder.Services.AddCustomRateLimiting(builder.Configuration);
 builder.Services.AddCustomCors(builder.Configuration);
@@ -42,10 +42,12 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT"
     });
-    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-    {
-        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
-    });
+
+    //options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    //{
+    //    [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+    //});
+    options.OperationFilter<AuthorizationFilter>();
 });
 
 var app = builder.Build();
@@ -53,7 +55,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
