@@ -1,31 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using System.Security.Claims;
-using System.Threading.RateLimiting;
+﻿namespace ModularBackend.Api.Extensions;
 
-namespace ModularBackend.Api.Extensions
+public static class CorsExtensions
 {
-    public static class CorsExtensions
+    public const string FrontendPolicy = "FrontendPolicy";
+
+    public static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration configuration)
     {
-        public const string FrontendPolicy = "FrontendPolicy";
-        public static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration configuration)
-        {
-            var allowedOrigins = configuration
+        var allowedOrigins = configuration
             .GetSection("AllowedOrigins")
-            .Get<string[]>() ?? Array.Empty<string>();
+            .Get<string[]>()?
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray()
+            ?? [];
 
-            services.AddCors(options =>
+        services.AddCors(options =>
+        {
+            options.AddPolicy(FrontendPolicy, policy =>
             {
-                options.AddPolicy(FrontendPolicy, policy =>
+                if (allowedOrigins.Length == 0)
                 {
-                    policy.WithOrigins(allowedOrigins)
-                          .AllowAnyHeader()
-                          .AllowAnyMethod().WithExposedHeaders("");
-                });
+                    return;
+                }
+
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .WithExposedHeaders("X-Pagination");
             });
+        });
 
-
-            return services;
-        }
+        return services;
     }
 }

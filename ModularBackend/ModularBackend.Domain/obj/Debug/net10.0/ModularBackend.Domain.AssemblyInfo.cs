@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ModularBackend.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fc974427cc250d68b6fcbc016a2f4927e5657eb7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+69c79391e8868e646f3d0960cd34c7d64a95de10")]
 [assembly: System.Reflection.AssemblyProductAttribute("ModularBackend.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ModularBackend.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

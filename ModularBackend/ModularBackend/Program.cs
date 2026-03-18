@@ -61,10 +61,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(CorsExtensions.FrontendPolicy);
+
 app.UseMiddleware<ExceptionsMiddleware>();
 app.UseMiddleware<LoggingMiddleware>();
-
-app.UseCors(CorsExtensions.FrontendPolicy);
 
 app.UseAuthentication();
 app.UseRateLimiter();

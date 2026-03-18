@@ -13,6 +13,9 @@ namespace ModularBackend.Domain.Entities
         public bool IsActive { get; private set; }
         public TaxRate TaxRate { get; private set; }
 
+        private readonly List<ProductPhoto> _photos = new();
+        public IReadOnlyCollection<ProductPhoto> Photos => _photos.AsReadOnly();
+
         public Product()
         {
             
@@ -54,20 +57,27 @@ namespace ModularBackend.Domain.Entities
 
         public void ChangePrice(Money newBasePrice)
         {
-            if(newBasePrice is null) throw new ArgumentException("New base price is required.", nameof(newBasePrice));
             EnsureActiveForModification();
+            if (newBasePrice is null) throw new ArgumentException("New base price is required.", nameof(newBasePrice));
 
             BasePrice = newBasePrice;
         }
 
         public void Rename(string name)
         {
+            EnsureActiveForModification();
+
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Product name cannot be empty.", nameof(name));
 
-            EnsureActiveForModification();
-
             Name = name.Trim();
+        }
+
+        public void AddPhotoOfProduct(int order, string url, bool isMain = false)
+        {
+            EnsureActiveForModification();
+            _photos.Add(new ProductPhoto(this.Id, url, order, isMain));
+            //Añadir evento para hacer la subida a azure blob
         }
 
         public void Deactivate() => IsActive = false;

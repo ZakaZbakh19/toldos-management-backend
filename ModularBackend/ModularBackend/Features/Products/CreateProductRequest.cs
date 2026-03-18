@@ -2,7 +2,7 @@
 
 namespace ModularBackend.Api.Features.Products
 {
-    public sealed record CreateProductDTO(
+    public sealed record CreateProductRequest(
         string Name,
         decimal BasePrice,
         decimal TaxRate,

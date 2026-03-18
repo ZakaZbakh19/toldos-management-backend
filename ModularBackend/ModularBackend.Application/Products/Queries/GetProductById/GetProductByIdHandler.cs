@@ -16,7 +16,7 @@ namespace ModularBackend.Application.Products.Queries.GetProductById
         public async Task<ProductDetailDTO> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
             var dto = await _productQueries.GetByIdAsync(request.Id, cancellationToken);
-            return dto ?? throw new NotFoundException($"Product with id '{request.Id}' was not found."); ;
+            return dto ?? throw new NotFoundException($"Product with id '{request.Id}' was not found.");
         }
     }
 }

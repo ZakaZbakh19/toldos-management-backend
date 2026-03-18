@@ -1,4 +1,5 @@
-﻿using ModularBackend.Application.Abstractions.Messaging.Mediator;
+﻿using ModularBackend.Application.Abstractions.Common;
+using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Exceptions;
 using ModularBackend.Application.Products.Queries.Common;
@@ -9,17 +10,19 @@ using System.Text;
 
 namespace ModularBackend.Application.Products.Queries.GetProducts
 {
-    public class GetProductsHandler : IRequestHandler<GetProductsQuery, PagedResult<ProductDetailDTO>>
+    public sealed class GetProductsHandler : IRequestHandler<GetProductsQuery, PagedResult<ProductDetailDTO>>
     {
-        private readonly IProductQuery _productQueries;
+        private readonly IProductQuery _productQuery;
 
-        public GetProductsHandler(IProductQuery productQueries)
+        public GetProductsHandler(IProductQuery productQuery)
         {
-            _productQueries = productQueries;
+            _productQuery = productQuery;
         }
+
         public async Task<PagedResult<ProductDetailDTO>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            var products = _productQueries.
+            var result = await _productQuery.GetPagedAsync(request, cancellationToken);
+            return result ?? throw new NotFoundException($"Products not founded.");
         }
     }
 }

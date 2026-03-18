@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ModularBackend.Application.Abstractions.Common;
 using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Products.Queries.Common;
+using ModularBackend.Application.Products.Queries.GetProducts;
 using ModularBackend.Domain.Entities;
 using ModularBackend.Infrastructure.Persistance.Context;
+using ModularBackend.Infrastructure.Queries.Extensions;
 using ModularBackend.Infrastructure.Repositories.Common;
 using System;
 using System.Collections.Generic;
@@ -19,20 +22,6 @@ namespace ModularBackend.Infrastructure.Queries
         {
             _context = db;
         }
-
-        //public Task<ProductDetailDTO?> FindAsync(Expression<Func<ProductDetailDTO, bool>> predicate, CancellationToken ct = default)
-        //{
-        //    return _applicationDbContext.Products
-        //        .AsNoTracking()
-        //        .Select(p => new ProductDetailDTO
-        //        (
-        //            p.Id,
-        //            p.Name,
-        //            p.Description,
-        //            p.BasePrice.Amount
-        //        ))
-        //        .FirstOrDefaultAsync(predicate, ct);
-        //}
 
         public Task<ProductDetailDTO?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
@@ -50,14 +39,18 @@ namespace ModularBackend.Infrastructure.Queries
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<PagedResult<ProductDetailDTO>?> GetPagedAsync(int page, int pageSize, CancellationToken ct = default)
+        public async Task<PagedResult<ProductDetailDTO>> GetPagedAsync(GetProductsQuery request, CancellationToken ct = default)
         {
-            var items = await _context.Products
+            var query = _context.Products
                 .AsNoTracking()
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(p => new ProductDetailDTO
-                (
+                .ApplyFilters(request);
+
+            var totalCount = await query.CountAsync(ct);
+
+            var items = await query
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(p => new ProductDetailDTO(
                     p.Id,
                     p.Name,
                     p.Description,
@@ -65,12 +58,12 @@ namespace ModularBackend.Infrastructure.Queries
                 ))
                 .ToListAsync(ct);
 
-            return new PagedResult<ProductDetailDTO>()
+            return new PagedResult<ProductDetailDTO>
             {
                 Items = items,
-                TotalCount = items.Count,
-                Page = page,
-                PageSize = pageSize
+                TotalCount = totalCount,
+                Page = request.Page,
+                PageSize = request.PageSize
             };
         }
     }
