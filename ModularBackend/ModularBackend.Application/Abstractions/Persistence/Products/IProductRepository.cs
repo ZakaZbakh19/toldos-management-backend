@@ -8,5 +8,6 @@ namespace ModularBackend.Application.Abstractions.Persistence.Products
     public interface IProductRepository
     {
         Task AddAsync(ModularBackend.Domain.Entities.Product product, CancellationToken cancellationToken = default);
+        Task<ModularBackend.Domain.Entities.Product?> GetByByIdAsync(Guid productId, CancellationToken cancellationToken = default);
     }
 }

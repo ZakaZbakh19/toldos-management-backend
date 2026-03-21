@@ -7,18 +7,19 @@ namespace ModularBackend.Domain.Entities
 {
     public sealed class Product : AggregateRoot
     {
+        private const int MaxPhotos = 10;
         public string Name { get; private set; } = string.Empty;
         public Money BasePrice { get; private set; }
         public string Description { get; private set; } = string.Empty;
         public bool IsActive { get; private set; }
         public TaxRate TaxRate { get; private set; }
 
-        private readonly List<ProductPhoto> _photos = new();
-        public IReadOnlyCollection<ProductPhoto> Photos => _photos.AsReadOnly();
+        private readonly List<ProductFile> _photos = new();
+        public IReadOnlyCollection<ProductFile> Photos => _photos.AsReadOnly();
 
         public Product()
         {
-            
+
         }
 
         public Product(string name, TaxRate taxRate, Money basePrice, string? description = null, bool isActive = true)
@@ -73,11 +74,38 @@ namespace ModularBackend.Domain.Entities
             Name = name.Trim();
         }
 
-        public void AddPhotoOfProduct(int order, string url, bool isMain = false)
+        public void AddPhoto(ProductFile resource)
         {
             EnsureActiveForModification();
-            _photos.Add(new ProductPhoto(this.Id, url, order, isMain));
-            //Añadir evento para hacer la subida a azure blob
+
+            if (_photos.Count >= MaxPhotos)
+                throw new BusinessRuleViolationException("The product cannot contain more than 10 photos.");
+
+            if (_photos.Any(x => x.ContentHash == resource.ContentHash))
+                throw new BusinessRuleViolationException("The same photo has already been added to this product.");
+
+            if (_photos.Any(x => x.ContentType == "image/gif"))
+                throw new BusinessRuleViolationException("GIFs not allowed");
+
+            _photos.Add(ProductFile.Create(
+                id: resource.Id,
+                productId: Id,
+                storageKey: resource.StorageKey,
+                contentType: resource.ContentType,
+                contentHash: resource.ContentHash,
+                contentLenght: resource.ContentLength,
+                originalFileName: resource.OriginalFileName
+            ));
+        }
+
+        public void RemovePhoto(Guid photoId)
+        {
+            EnsureActiveForModification();
+
+            var photo = _photos.SingleOrDefault(x => x.Id == photoId)
+                ?? throw new BusinessRuleViolationException("Photo not found.");
+
+            _photos.Remove(photo);
         }
 
         public void Deactivate() => IsActive = false;

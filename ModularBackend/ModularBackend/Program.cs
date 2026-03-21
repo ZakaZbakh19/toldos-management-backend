@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using ModularBackend.Api.Extensions;
@@ -7,6 +8,15 @@ using ModularBackend.Application;
 using ModularBackend.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var vaultUrl = builder.Configuration["KeyVault:VaultUrl"];
+
+if (!string.IsNullOrWhiteSpace(vaultUrl))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(vaultUrl),
+        new DefaultAzureCredential());
+}
 
 // Add services to the container.
 builder.Services.AddApplication();

@@ -9,5 +9,5 @@ namespace ModularBackend.Application.Products.Commands.UploadPhotoProducts
     public sealed record UploadProductPhotosCommand(
         Guid ProductId,
         IReadOnlyCollection<UploadPhotoInput> Files) 
-        : ITransactionalCommandRequest<IReadOnlyCollection<string>>;
+        : ITransactionalCommandRequest<IReadOnlyCollection<UploadedPhotoDto>>;
 }

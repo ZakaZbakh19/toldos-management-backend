@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,7 @@ using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Abstractions.Persistence.Products;
 using ModularBackend.Application.IntegrationEvents;
+using ModularBackend.Application.Services;
 using ModularBackend.Infrastructure.EventBus;
 using ModularBackend.Infrastructure.Events;
 using ModularBackend.Infrastructure.Models.Identity;
@@ -20,8 +22,10 @@ using ModularBackend.Infrastructure.Persistance;
 using ModularBackend.Infrastructure.Persistance.Context;
 using ModularBackend.Infrastructure.Queries;
 using ModularBackend.Infrastructure.Repositories.Persistence;
+using ModularBackend.Infrastructure.Services;
 using ModularBackend.Infrastructure.Services.Identity;
 using System.Text;
+using Azure.Security.KeyVault.Secrets;
 
 namespace ModularBackend.Infrastructure
 {
@@ -108,6 +112,29 @@ namespace ModularBackend.Infrastructure
                 options.AddPolicy("ProductManager", policy =>
                     policy.RequireClaim("permission", "products.manager"));
             });
+
+            services.AddOptions<AzureBlobStorageOptions>()
+                .Bind(configuration.GetSection(AzureBlobStorageOptions.SectionName))
+                .Validate(x => !string.IsNullOrWhiteSpace(x.ConnectionString), "ConnectionString is required.")
+                .Validate(x => !string.IsNullOrWhiteSpace(x.ContainerName), "ContainerName is required.")
+                .ValidateOnStart();
+
+            services.AddSingleton(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<AzureBlobStorageOptions>>().Value;
+                return new BlobServiceClient(options.ConnectionString);
+            });
+
+            services.AddSingleton(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<AzureBlobStorageOptions>>().Value;
+                var blobServiceClient = sp.GetRequiredService<BlobServiceClient>();
+                return blobServiceClient.GetBlobContainerClient(options.ContainerName);
+            });
+
+            services.AddScoped<IFileStorageService, AzureFilesStorageService>();
+            services.AddScoped<IFileAccessUrlService, AzureBlobAccessUrlService>();
+            services.AddHostedService<AzureBlobStorageInitializer>();
 
             return services;
         }

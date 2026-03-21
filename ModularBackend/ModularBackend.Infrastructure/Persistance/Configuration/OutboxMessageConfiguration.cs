@@ -22,7 +22,7 @@ namespace ModularBackend.Infrastructure.Persistance.Configuration
             builder.Property(x => x.Attempts).IsRequired();
             builder.Property(x => x.LastAttemptOnUtc);
 
-            builder.HasIndex(x => new { x.ProcessedOnUtc, x.OccurredOnUtc, x.LastAttemptOnUtc });
+            builder.HasIndex(x => new { x.ProcessedOnUtc, x.OccurredOnUtc });
         }
     }
 }
