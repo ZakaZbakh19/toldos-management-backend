@@ -22,7 +22,7 @@ namespace ModularBackend.Infrastructure.Services
 
         private readonly BlobContainerClient _containerClient;
 
-        public AzureBlobStorageService(BlobContainerClient containerClient)
+        public AzureFilesStorageService(BlobContainerClient containerClient)
         {
             _containerClient = containerClient;
         }

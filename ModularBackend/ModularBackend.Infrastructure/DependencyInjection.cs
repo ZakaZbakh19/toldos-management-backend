@@ -25,7 +25,6 @@ using ModularBackend.Infrastructure.Repositories.Persistence;
 using ModularBackend.Infrastructure.Services;
 using ModularBackend.Infrastructure.Services.Identity;
 using System.Text;
-using Azure.Security.KeyVault.Secrets;
 
 namespace ModularBackend.Infrastructure
 {

@@ -17,7 +17,7 @@ namespace ModularBackend.Infrastructure.Repositories.Persistence
             await _set.AddAsync(product, cancellationToken);
         }
 
-        public async Task<Product?> GetByIdAsync(Guid productId, CancellationToken cancellationToken = default)
+        public async Task<Product?> GetByByIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
             return await _set.FindAsync(productId, cancellationToken);
         }
