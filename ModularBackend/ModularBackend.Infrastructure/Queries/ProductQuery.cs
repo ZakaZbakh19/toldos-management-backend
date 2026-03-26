@@ -56,6 +56,7 @@ namespace ModularBackend.Infrastructure.Queries
                     p.Description,
                     p.BasePrice.Amount
                 ))
+                .OrderBy(p => p.Name)
                 .ToListAsync(ct);
 
             return new PagedResult<ProductDetailDTO>

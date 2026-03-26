@@ -14,6 +14,7 @@ namespace ModularBackend.Domain.Entities
         public TaxId TaxId { get; private set; }
         public Address BillingAddress { get; private set; }
         public Address InstallationAddress { get; private set; }
+        public bool IsDeleted { get; private set; }
 
         public Customer()
         {
@@ -69,6 +70,9 @@ namespace ModularBackend.Domain.Entities
             if (installationFollowsBilling)
                 InstallationAddress = newBillingAddress;
         }
+
+        public void DeleteCustomer()
+            => IsDeleted = true;
 
         public void UpdateInstallationAddress(Address? newInstallationAddress)
             => InstallationAddress = newInstallationAddress ?? BillingAddress;

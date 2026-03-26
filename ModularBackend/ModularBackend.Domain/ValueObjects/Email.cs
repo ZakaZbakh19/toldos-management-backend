@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ModularBackend.Domain.ValueObjects
 {
-    public readonly record struct Email
+    public sealed record Email
     {
         public string Value { get; }
 

@@ -12,14 +12,6 @@ namespace ModularBackend.Infrastructure.Services
 {
     public sealed class AzureFilesStorageService : IFileStorageService
     {
-        private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-            "application/pdf"
-        };
-
         private readonly BlobContainerClient _containerClient;
 
         public AzureFilesStorageService(BlobContainerClient containerClient)
