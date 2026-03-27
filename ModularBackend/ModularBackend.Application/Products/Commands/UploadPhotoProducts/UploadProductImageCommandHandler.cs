@@ -2,6 +2,7 @@
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Abstractions.Persistence.Products;
+using ModularBackend.Application.Cache;
 using ModularBackend.Application.Exceptions;
 using ModularBackend.Application.Products.Commands.CreateProduct;
 using ModularBackend.Application.Services;
@@ -19,16 +20,19 @@ namespace ModularBackend.Application.Products.Commands.UploadPhotoProducts
         private readonly IFileStorageService _fileStorageService;
         private readonly IStorageKeyFactory _storageKeyFactory;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICacheInvalidator _cacheInvalidator;
 
         public UploadProductImageCommandHandler(IProductRepository productRepository,
             IFileStorageService fileStorageService,
             IStorageKeyFactory storageKeyFactory,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ICacheInvalidator cacheInvalidator)
         {
             _productRepository = productRepository;
             _fileStorageService = fileStorageService;
             _storageKeyFactory = storageKeyFactory;
             _unitOfWork = unitOfWork;
+            _cacheInvalidator = cacheInvalidator;
         }
 
         public async Task<IReadOnlyCollection<UploadedPhotoDto>> Handle(UploadProductPhotosCommand command, CancellationToken cancellationToken)
@@ -86,6 +90,8 @@ namespace ModularBackend.Application.Products.Commands.UploadPhotoProducts
                 }
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                await _cacheInvalidator.InvalidateProductsAsync(cancellationToken);
 
                 return uploaded.AsReadOnly();
             }

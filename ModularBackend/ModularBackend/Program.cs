@@ -60,6 +60,17 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<AuthorizationFilter>();
 });
 
+builder.Services.AddOutputCache(options =>
+{
+    options.DefaultExpirationTimeSpan = TimeSpan.FromMinutes(10);
+
+    options.AddPolicy("ProductById", policy =>
+    {
+        policy.SetVaryByRouteValue("id");
+        policy.Tag("products");
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -72,6 +83,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors(CorsExtensions.FrontendPolicy);
+app.UseOutputCache();
 
 app.UseMiddleware<ExceptionsMiddleware>();
 app.UseMiddleware<LoggingMiddleware>();

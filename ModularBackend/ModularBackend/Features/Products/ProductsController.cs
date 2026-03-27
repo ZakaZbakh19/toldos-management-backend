@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using ModularBackend.Application.Abstractions.Common;
 using ModularBackend.Application.Abstractions.Messaging.Mediator;
@@ -25,6 +26,7 @@ namespace ModularBackend.Api.Features.Products
         }
 
         [HttpGet("{id:guid}")]
+        [OutputCache(PolicyName = "ProductById")]
         [Authorize(Policy = "ProductManager")]
         [EnableRateLimiting("authenticated-user-standard")]
         [ProducesResponseType<ProductDetailDTO>(StatusCodes.Status200OK)]
@@ -62,6 +64,7 @@ namespace ModularBackend.Api.Features.Products
 
         [HttpPost]
         [Authorize(Policy = "ProductManager")]
+        [OutputCache(Tags = ["products"])]
         [EnableRateLimiting("authenticated-user-standard")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -84,6 +87,7 @@ namespace ModularBackend.Api.Features.Products
 
         [HttpPost("{productId:guid}/photos")]
         [Consumes("multipart/form-data")]
+        [OutputCache(Tags = ["products"])]
         [Authorize(Policy = "ProductManager")]
         [EnableRateLimiting("authenticated-user-standard")]
         [ProducesResponseType(StatusCodes.Status201Created)]

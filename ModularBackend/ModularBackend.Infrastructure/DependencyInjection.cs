@@ -12,8 +12,10 @@ using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Abstractions.Persistence.Products;
+using ModularBackend.Application.Cache;
 using ModularBackend.Application.IntegrationEvents;
 using ModularBackend.Application.Services;
+using ModularBackend.Infrastructure.Cache;
 using ModularBackend.Infrastructure.EventBus;
 using ModularBackend.Infrastructure.Events;
 using ModularBackend.Infrastructure.Models.Identity;
@@ -32,6 +34,11 @@ namespace ModularBackend.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddStackExchangeRedisOutputCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("Redis:PublicEndpoint");
+            });
+
             // Settings fuertemente tipados
             services.AddOptions<JwtSettings>()
                 .Bind(configuration.GetSection(JwtSettings.SectionName))
@@ -134,6 +141,8 @@ namespace ModularBackend.Infrastructure
             services.AddScoped<IFileStorageService, AzureFilesStorageService>();
             services.AddScoped<IFileAccessUrlService, AzureBlobAccessUrlService>();
             services.AddHostedService<AzureBlobStorageInitializer>();
+
+            services.AddScoped<ICacheInvalidator, OutputCacheInvalidator>();
 
             return services;
         }

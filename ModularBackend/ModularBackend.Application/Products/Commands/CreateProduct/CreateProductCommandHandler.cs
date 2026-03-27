@@ -3,6 +3,7 @@ using ModularBackend.Application.Abstractions.Messaging.Mediator;
 using ModularBackend.Application.Abstractions.Persistance;
 using ModularBackend.Application.Abstractions.Persistence;
 using ModularBackend.Application.Abstractions.Persistence.Products;
+using ModularBackend.Application.Cache;
 using ModularBackend.Domain.Entities;
 using ModularBackend.Domain.Enumerables;
 using ModularBackend.Domain.ValueObjects;
@@ -16,11 +17,15 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
     {
         private readonly IProductRepository _productRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICacheInvalidator _cacheInvalidator;
 
-        public CreateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
+        public CreateProductCommandHandler(IProductRepository productRepository, 
+            IUnitOfWork unitOfWork,
+            ICacheInvalidator cacheInvalidator)
         {
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
+            _cacheInvalidator = cacheInvalidator;
         }
 
         public async Task<CreateProductDTO> Handle(CreateProductCommand command, CancellationToken cancellationToken)
@@ -36,6 +41,8 @@ namespace ModularBackend.Application.Products.Commands.CreateProduct
             await _productRepository.AddAsync(product, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await _cacheInvalidator.InvalidateProductsAsync(cancellationToken);
 
             return new CreateProductDTO(Id: product.Id,
                 Name: product.Name,
