@@ -33,7 +33,7 @@ namespace ModularBackend.Infrastructure.Messaging
                     var bus = scope.ServiceProvider.GetRequiredService<IMessagingBus>();
 
                     var pendingMessages = await dbContext.Set<OutboxMessage>()
-                        .Where(x => x.ProcessedOnUtc == null && x.Attempts <= 5)
+                        .Where(x => x.ProcessedOnUtc == null && x.Attempts < 5)
                         .OrderBy(x => x.OccurredOnUtc)
                         .Take(20)
                         .ToListAsync(stoppingToken);
@@ -42,7 +42,7 @@ namespace ModularBackend.Infrastructure.Messaging
                     {
                         try
                         {
-                            if(message.Attempts >= 5)
+                            if(message.Attempts > 5)
                             {
                                 _logger.LogWarning("Outbox message {MessageId} has reached maximum retry attempts", message.Id);
                                 continue;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Domain.DomainEvents
+namespace ModularBackend.Domain.Events
 {
     public static class DomainEventNames
     {

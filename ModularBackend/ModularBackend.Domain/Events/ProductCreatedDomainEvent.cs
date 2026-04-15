@@ -1,5 +1,4 @@
 ﻿using ModularBackend.Domain.Abstractions;
-using ModularBackend.Domain.DomainEvents;
 
 namespace ModularBackend.Domain.Events
 {

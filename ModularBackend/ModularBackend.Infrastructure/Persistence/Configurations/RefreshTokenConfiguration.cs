@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ModularBackend.Application.Abstractions.Identity;
+using ModularBackend.Infrastructure.Services.Identity;
 
 namespace ModularBackend.Infrastructure.Persistence.Configurations;
 

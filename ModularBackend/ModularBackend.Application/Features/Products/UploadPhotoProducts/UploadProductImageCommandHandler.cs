@@ -63,15 +63,14 @@ namespace ModularBackend.Application.Features.Products.UploadPhotoProducts
 
                         uploadedKeys.Add(storageKey);
 
-                        product.AddPhoto(ProductFile.Create(
-                            id: photoId,
-                            productId: product.Id,
+                        product.AddPhoto(
+                            photoId: photoId,
                             storageKey: stored.StorageKey,
                             contentType: stored.ContentType,
                             contentHash: stored.ContentHash,
                             contentLength: stored.ContentLength,
                             originalFileName: file.FileName
-                        ));
+                        );
 
                         uploaded.Add(new UploadedPhotoDto(photoId, storageKey));
                     }

@@ -32,20 +32,23 @@ namespace ModularBackend.Infrastructure.Persistence.Queries.Extensions
         {
             if (string.IsNullOrWhiteSpace(request.SortBy))
             {
-                return query.OrderBy(p => p.Id); // Orden por defecto
+                return query.OrderBy(p => p.Id);
             }
 
-            // Definimos la expresión de la clave según el string
-            Expression<Func<Product, object>> keySelector = request.SortBy.ToLower() switch
+            return request.SortBy.ToLower() switch
             {
-                "name" => p => p.Name,
-                "price" => p => p.BasePrice,
-                _ => p => p.Id 
-            };
+                "name" => request.Desc
+                    ? query.OrderByDescending(p => p.Name)
+                    : query.OrderBy(p => p.Name),
 
-            return request.Desc
-                ? query.OrderByDescending(keySelector)
-                : query.OrderBy(keySelector);
+                "price" => request.Desc
+                    ? query.OrderByDescending(p => p.BasePrice.Amount)
+                    : query.OrderBy(p => p.BasePrice.Amount),
+
+                _ => request.Desc
+                    ? query.OrderByDescending(p => p.Id)
+                    : query.OrderBy(p => p.Id)
+            };
         }
     }
 }

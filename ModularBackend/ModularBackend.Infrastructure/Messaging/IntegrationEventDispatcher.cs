@@ -15,7 +15,7 @@ namespace ModularBackend.Infrastructure.Messaging
         // El diccionario mapea el nombre del string al Tipo de la clase C#
         private static readonly Dictionary<string, Type> _eventTypeMapping = new()
         {
-            { "ProductCreatedV1", typeof(ProductCreatedIntegrationEvent) },
+            { IntegrationEventNames.ProductCreatedV1, typeof(ProductCreatedIntegrationEvent) },
         };
 
         public IntegrationEventDispatcher(
@@ -58,6 +58,8 @@ namespace ModularBackend.Infrastructure.Messaging
             }
             catch (DbUpdateException) // EF Core lanza esto cuando falla la restricción de SQL
             {
+                // Si la excepción es por clave duplicada, significa que otro proceso ya marcó este evento como procesado
+                // No hacemos nada y simplemente salimos, ya que el evento ya fue manejado por otro proceso
             }
         }
     }

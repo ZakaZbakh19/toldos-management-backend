@@ -182,7 +182,7 @@ namespace ModularBackend.Infrastructure
                 return blobServiceClient.GetBlobContainerClient(options.ContainerName);
             });
 
-            services.AddSingleton<IFileStorageService, AzureFilesStorageService>();
+            services.AddSingleton<IFileStorageService, AzureBlobFileStorageService>();
             services.AddScoped<IFileAccessUrlService, AzureBlobAccessUrlService>();
             services.AddScoped<IStorageKeyFactory, StorageKeyFactory>();
             services.AddHostedService<AzureBlobStorageInitializer>();

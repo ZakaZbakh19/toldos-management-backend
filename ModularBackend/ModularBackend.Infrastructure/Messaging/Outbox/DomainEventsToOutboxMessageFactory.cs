@@ -1,7 +1,6 @@
 ﻿using ModularBackend.Application.Abstractions.Events.IntegrationEvents;
 using ModularBackend.Application.Features.Products.CreateProduct;
 using ModularBackend.Domain.Abstractions;
-using ModularBackend.Domain.DomainEvents;
 using ModularBackend.Domain.Events;
 using System.Text.Json;
 

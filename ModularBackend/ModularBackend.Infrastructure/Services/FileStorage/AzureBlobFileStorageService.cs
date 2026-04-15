@@ -10,11 +10,11 @@ using ModularBackend.Application.Abstractions.Services.Files;
 
 namespace ModularBackend.Infrastructure.Services.FileStorage
 {
-    public sealed class AzureFilesStorageService : IFileStorageService
+    public sealed class AzureBlobFileStorageService : IFileStorageService
     {
         private readonly BlobContainerClient _containerClient;
 
-        public AzureFilesStorageService(BlobContainerClient containerClient)
+        public AzureBlobFileStorageService(BlobContainerClient containerClient)
         {
             _containerClient = containerClient;
         }

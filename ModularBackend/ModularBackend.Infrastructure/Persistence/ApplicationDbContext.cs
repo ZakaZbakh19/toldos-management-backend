@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ModularBackend.Application.Abstractions.Services.Identity;
 using ModularBackend.Domain.Entities;
 using ModularBackend.Infrastructure.EventBus;
@@ -11,7 +12,7 @@ using System.Text;
 
 namespace ModularBackend.Infrastructure.Persistence
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<Users>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

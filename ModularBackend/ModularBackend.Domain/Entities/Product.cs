@@ -7,6 +7,14 @@ namespace ModularBackend.Domain.Entities
 {
     public sealed class Product : AggregateRoot
     {
+        private static readonly HashSet<string> AllowedContentTypes = new()
+        {
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp"
+        };
+
         private const int MaxPhotos = 10;
         public string Name { get; private set; } = string.Empty;
         public Money BasePrice { get; private set; }
@@ -71,28 +79,41 @@ namespace ModularBackend.Domain.Entities
             Name = name.Trim();
         }
 
-        public void AddPhoto(ProductFile resource)
+        public void AddPhoto(Guid photoId,
+            string storageKey,
+            string contentType,
+            string contentHash,
+            long contentLength,
+            string? originalFileName)
         {
             EnsureActiveForModification();
+
+            if(string.IsNullOrWhiteSpace(storageKey))
+                throw new ArgumentException("Storage key cannot be empty.", nameof(storageKey));
+
+            if (string.IsNullOrWhiteSpace(contentType))
+                throw new ArgumentException("Content type cannot be empty.", nameof(contentType));
+
+            if (!AllowedContentTypes.Any(x => x == contentType))
+                throw new BusinessRuleViolationException("This content type is not allowed.");
 
             if (_photos.Count >= MaxPhotos)
                 throw new BusinessRuleViolationException("The product cannot contain more than 10 photos.");
 
-            if (_photos.Any(x => x.ContentHash == resource.ContentHash))
+            if (_photos.Any(x => x.ContentHash == contentHash))
                 throw new BusinessRuleViolationException("The same photo has already been added to this product.");
 
-            if (resource.ContentType == "image/gif")
-                throw new BusinessRuleViolationException("GIFs not allowed");
+            var photo = ProductFile.Create(
+                id: photoId,
+                productId: this.Id,
+                storageKey: storageKey,
+                contentType: contentType,
+                contentHash: contentHash,
+                contentLength: contentLength,
+                originalFileName: originalFileName
+            );
 
-            _photos.Add(ProductFile.Create(
-                id: resource.Id,
-                productId: Id,
-                storageKey: resource.StorageKey,
-                contentType: resource.ContentType,
-                contentHash: resource.ContentHash,
-                contentLength: resource.ContentLength,
-                originalFileName: resource.OriginalFileName
-            ));
+            _photos.Add(photo);
         }
 
         public void RemovePhoto(Guid photoId)
