@@ -1,4 +1,4 @@
-﻿using ModularBackend.Application.Abstractions.Common;
+﻿using ModularBackend.Application.Shared;
 using System.Text.Json;
 
 namespace ModularBackend.Api.Extensions

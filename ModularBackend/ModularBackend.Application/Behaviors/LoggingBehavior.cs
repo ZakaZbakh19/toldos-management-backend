@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using ModularBackend.Application.Abstractions.Messaging.Mediator;
+using ModularBackend.Application.Mediator;
 using System.Diagnostics;
 
 namespace ModularBackend.Application.Behaviors;

@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using ModularBackend.Application.Abstractions.Events;
-using ModularBackend.Application.Abstractions.Messaging.Mediator;
+using ModularBackend.Application.Abstractions.Events.IntegrationEvents;
+using ModularBackend.Application.Abstractions.Events.Notifications;
 using ModularBackend.Application.Behaviors;
+using ModularBackend.Application.Features.Products.CreateProduct;
+using ModularBackend.Application.Mediator;
 using System.Reflection;
 
 namespace ModularBackend.Application
@@ -13,12 +15,15 @@ namespace ModularBackend.Application
         {
             var assembly = Assembly.GetExecutingAssembly();
 
-            services.AddScoped<IMediator, Mediator>();
+            services.AddScoped<IMediator, CustomMediator>();
             services.AddHandlersFromAssembly(assembly);
             services.AddValidatorsFromAssembly(assembly);
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+
+
+            services.AddScoped<IIntegrationEventHandler<ProductCreatedIntegrationEvent>, ProductCreatedIntegrationEventHandler>();
 
             return services;
         }

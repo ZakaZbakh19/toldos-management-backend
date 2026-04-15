@@ -1,5 +1,5 @@
 using FluentValidation;
-using ModularBackend.Application.Abstractions.Messaging.Mediator;
+using ModularBackend.Application.Mediator;
 
 namespace ModularBackend.Application.Behaviors;
 

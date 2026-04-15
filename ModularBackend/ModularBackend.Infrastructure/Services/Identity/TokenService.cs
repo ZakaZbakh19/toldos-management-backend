@@ -1,49 +1,45 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ModularBackend.Application.Abstractions.Identity;
-using ModularBackend.Application.Abstractions.Persistence;
-using ModularBackend.Application.Identity;
-using ModularBackend.Infrastructure.Models.Identity;
-using ModularBackend.Infrastructure.Persistance;
+using ModularBackend.Application.Abstractions.Services.Identity;
+using ModularBackend.Infrastructure.Services.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
-public class TokenService : ITokenService
+namespace ModularBackend.Infrastructure.Services.Identity
 {
-    private readonly JwtSettings _settings;
-
-    public TokenService(IOptions<JwtSettings> options)
+    public class TokenService : ITokenService
     {
-        _settings = options.Value;
-    }
+        private readonly JwtSettings _settings;
 
-    public string GenerateToken(string userId, string email, DateTime expirationAt, IList<Claim> claimsDb)
-    {
-        var baseClaims = new List<Claim>
+        public TokenService(IOptions<JwtSettings> options)
+        {
+            _settings = options.Value;
+        }
+
+        public string GenerateToken(string userId, string email, DateTime expirationAt, IList<Claim> claimsDb)
+        {
+            var baseClaims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, userId),
             new(JwtRegisteredClaimNames.Email, email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N"))
         };
 
-        baseClaims.AddRange(claimsDb);
+            baseClaims.AddRange(claimsDb);
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: _settings.Issuer,
-            audience: _settings.Audience,
-            claims: baseClaims,
-            notBefore: DateTime.UtcNow,
-            expires: expirationAt,
-            signingCredentials: creds);
+            var token = new JwtSecurityToken(
+                issuer: _settings.Issuer,
+                audience: _settings.Audience,
+                claims: baseClaims,
+                notBefore: DateTime.UtcNow,
+                expires: expirationAt,
+                signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }

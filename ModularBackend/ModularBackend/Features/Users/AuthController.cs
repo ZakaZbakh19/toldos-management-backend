@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using ModularBackend.Application.Abstractions.Messaging.Mediator;
-using ModularBackend.Application.Users.Commands.Auth;
-using ModularBackend.Application.Users.Commands.Auth.Login;
-using ModularBackend.Application.Users.Commands.Auth.Logout;
-using ModularBackend.Application.Users.Commands.Auth.Refresh;
-using ModularBackend.Application.Users.Commands.Auth.Register;
+using ModularBackend.Application.Features.Users;
+using ModularBackend.Application.Features.Users.Login;
+using ModularBackend.Application.Features.Users.Logout;
+using ModularBackend.Application.Features.Users.Refresh;
+using ModularBackend.Application.Features.Users.Register;
+using ModularBackend.Application.Mediator;
 
 namespace ModularBackend.Api.Features.Users
 {

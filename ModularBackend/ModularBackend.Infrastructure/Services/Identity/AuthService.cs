@@ -1,20 +1,9 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using ModularBackend.Application.Abstractions.Identity;
-using ModularBackend.Application.Abstractions.Persistance;
-using ModularBackend.Application.Abstractions.Persistence;
-using ModularBackend.Application.Identity;
-using ModularBackend.Domain.Exceptions;
+using ModularBackend.Application.Abstractions.Services.Identity;
 using ModularBackend.Infrastructure.Exceptions;
-using ModularBackend.Infrastructure.Models.Identity;
-using ModularBackend.Infrastructure.Persistance;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace ModularBackend.Infrastructure.Services.Identity
 {

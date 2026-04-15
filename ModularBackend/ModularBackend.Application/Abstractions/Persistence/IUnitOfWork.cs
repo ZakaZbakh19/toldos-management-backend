@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Application.Abstractions.Persistance
+namespace ModularBackend.Application.Abstractions.Persistence
 {
     public interface IUnitOfWork
     {

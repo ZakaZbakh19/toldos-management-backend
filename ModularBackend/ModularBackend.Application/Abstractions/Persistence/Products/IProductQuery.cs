@@ -1,11 +1,11 @@
-﻿using ModularBackend.Application.Abstractions.Common;
-using ModularBackend.Application.Products.Queries.Common;
-using ModularBackend.Application.Products.Queries.GetProducts;
+﻿using ModularBackend.Application.Features.Products.Common;
+using ModularBackend.Application.Features.Products.GetProducts;
+using ModularBackend.Application.Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Application.Abstractions.Persistence.Product
+namespace ModularBackend.Application.Abstractions.Persistence.Products
 {
     public interface IProductQuery
     {

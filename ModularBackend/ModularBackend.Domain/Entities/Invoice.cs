@@ -22,6 +22,8 @@ namespace ModularBackend.Domain.Entities
         private readonly List<InvoiceLine> _lines = new();
         public IReadOnlyCollection<InvoiceLine> Lines => _lines;
 
+        private Invoice() { }
+
         public Invoice(Guid customerId, CurrencyType currency)
         {
             if (customerId == Guid.Empty)
@@ -112,14 +114,16 @@ namespace ModularBackend.Domain.Entities
         {
             var subtotal = Money.Zero(Currency);
             var tax = Money.Zero(Currency);
+            var total = Money.Zero(Currency);
 
             foreach (var line in _lines)
             {
                 subtotal += line.NetSubtotal();
                 tax += line.TaxAmount();
+                total += line.Total();
             }
 
-            return (subtotal, tax, subtotal + tax);
+            return (subtotal, tax, total);
         }
 
         private void EnsureDraft()
@@ -133,7 +137,5 @@ namespace ModularBackend.Domain.Entities
             if (Status == InvoiceStatusType.Cancelled)
                 throw new BusinessRuleViolationException("Cancelled invoice cannot be modified.");
         }
-
-        private Invoice() { }
     }
 }

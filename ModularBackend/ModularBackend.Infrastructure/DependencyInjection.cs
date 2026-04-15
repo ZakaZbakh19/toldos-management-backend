@@ -6,26 +6,29 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ModularBackend.Application.Abstractions.Events;
-using ModularBackend.Application.Abstractions.Identity;
-using ModularBackend.Application.Abstractions.Persistance;
+using ModularBackend.Application.Abstractions.Events.IntegrationEvents;
+using ModularBackend.Application.Abstractions.Events.Notifications;
 using ModularBackend.Application.Abstractions.Persistence;
-using ModularBackend.Application.Abstractions.Persistence.Product;
 using ModularBackend.Application.Abstractions.Persistence.Products;
-using ModularBackend.Application.Cache;
-using ModularBackend.Application.IntegrationEvents;
-using ModularBackend.Application.Services;
-using ModularBackend.Infrastructure.Cache;
+using ModularBackend.Application.Abstractions.Services.Cache;
+using ModularBackend.Application.Abstractions.Services.Files;
+using ModularBackend.Application.Abstractions.Services.Identity;
+using ModularBackend.Application.Abstractions.Services.Messaging;
+using ModularBackend.Application.Abstractions.Services.Persistence;
 using ModularBackend.Infrastructure.EventBus;
-using ModularBackend.Infrastructure.Events;
-using ModularBackend.Infrastructure.Models.Identity;
-using ModularBackend.Infrastructure.Outbox;
-using ModularBackend.Infrastructure.Persistance;
-using ModularBackend.Infrastructure.Persistance.Context;
-using ModularBackend.Infrastructure.Queries;
-using ModularBackend.Infrastructure.Repositories.Persistence;
-using ModularBackend.Infrastructure.Services;
+using ModularBackend.Infrastructure.Helpers;
+using ModularBackend.Infrastructure.Messaging;
+using ModularBackend.Infrastructure.Messaging.EventBus;
+using ModularBackend.Infrastructure.Persistence;
+using ModularBackend.Infrastructure.Persistence.Queries;
+using ModularBackend.Infrastructure.Persistence.Repositories;
+using ModularBackend.Infrastructure.Services.Cache;
+using ModularBackend.Infrastructure.Services.Events.Notifications;
+using ModularBackend.Infrastructure.Services.FileStorage;
 using ModularBackend.Infrastructure.Services.Identity;
+using ModularBackend.Infrastructure.Services.Persistence;
+using RabbitMQ.Client;
+using StackExchange.Redis;
 using System.Text;
 
 namespace ModularBackend.Infrastructure
@@ -34,10 +37,56 @@ namespace ModularBackend.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddOptions<RedisOptions>()
+                .Bind(configuration.GetSection(RedisOptions.SectionName))
+                .Validate(x => !string.IsNullOrWhiteSpace(x.ConnectionString), "Redis ConnectionString is required.")
+                .ValidateOnStart();
+
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<RedisOptions>>().Value;
+                return ConnectionMultiplexer.Connect(options.ConnectionString);
+            });
+
+            services.AddScoped<IStoreService, RedisStoreService>();
+
+            services.AddOptions<RabbitMqOptions>()
+                .Bind(configuration.GetSection(RabbitMqOptions.SectionName))
+                .Validate(x => !string.IsNullOrWhiteSpace(x.UserName), "RabbitMq:UserName is required.")
+                .Validate(x => !string.IsNullOrWhiteSpace(x.ExchangeName), "RabbitMq:ExchangeName is required.")
+                .Validate(x => !string.IsNullOrWhiteSpace(x.HostName), "RabbitMq:HostName is required.")
+                .Validate(x => !string.IsNullOrWhiteSpace(x.Password), "RabbitMq:Password is required.")
+                .ValidateOnStart();
+
             services.AddStackExchangeRedisOutputCache(options =>
             {
                 options.Configuration = configuration.GetConnectionString("Redis:PublicEndpoint");
             });
+
+            services.AddSingleton(sp =>
+            {
+                var _options = sp.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+                return new ConnectionFactory
+                {
+                    HostName = _options.HostName,
+                    Port = _options.Port,
+                    UserName = _options.UserName,
+                    Password = _options.Password
+                };
+            });
+
+            services.AddSingleton<IConnection>(sp =>
+            {
+                var factory = sp.GetRequiredService<ConnectionFactory>();
+                return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+            });
+
+            services.AddSingleton<RabbitMqInitializer>();
+            services.AddSingleton<IMessagingBus, RabbitMqIntegrationEventBus>();
+            services.AddScoped<IProcessedIntegrationEventStore, ProcessedIntegrationEventStore>();
+            services.AddScoped<IIntegrationEventDispatcher, IntegrationEventDispatcher>();
+
+            services.AddHostedService<ProductEventsConsumer>();
 
             // Settings fuertemente tipados
             services.AddOptions<JwtSettings>()
@@ -54,14 +103,10 @@ namespace ModularBackend.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DevConnection")));
 
-            services.AddDbContext<IdentityUsersDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("IdentityDevConnection")));
-
             // UoW + repos (ApplicationDbContext)
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IIdentityUnitOfWork, IdentityUnitOfWorkRepository>();
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IProductQuery, ProductQuery>();
+            services.AddScoped<IProductRepository, ProductsRepository>();
+            services.AddScoped<IProductQuery, ProductsQuery>();
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
@@ -69,8 +114,7 @@ namespace ModularBackend.Infrastructure
             services.AddScoped<ITokenService, TokenService>();
 
             services.AddScoped<INotificationPublisher, NotificationPublisher>();
-            services.AddSingleton<IIntegrationEventBus, RabbitMqIntegrationEventBus>();
-            services.AddHostedService<OutboxPublisherWorker>();
+            services.AddHostedService<PublisherWorker>();
 
             // Identity
             services.AddIdentityCore<Users>(options =>
@@ -86,7 +130,7 @@ namespace ModularBackend.Infrastructure
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             })
-            .AddEntityFrameworkStores<IdentityUsersDbContext>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
@@ -138,8 +182,9 @@ namespace ModularBackend.Infrastructure
                 return blobServiceClient.GetBlobContainerClient(options.ContainerName);
             });
 
-            services.AddScoped<IFileStorageService, AzureFilesStorageService>();
+            services.AddSingleton<IFileStorageService, AzureFilesStorageService>();
             services.AddScoped<IFileAccessUrlService, AzureBlobAccessUrlService>();
+            services.AddScoped<IStorageKeyFactory, StorageKeyFactory>();
             services.AddHostedService<AzureBlobStorageInitializer>();
 
             services.AddScoped<ICacheInvalidator, OutputCacheInvalidator>();

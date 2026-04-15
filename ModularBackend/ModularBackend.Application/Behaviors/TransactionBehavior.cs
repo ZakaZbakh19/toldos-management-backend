@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using ModularBackend.Application.Abstractions.Messaging.Mediator;
-using ModularBackend.Application.Abstractions.Persistance;
+using ModularBackend.Application.Abstractions.Persistence;
+using ModularBackend.Application.Mediator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

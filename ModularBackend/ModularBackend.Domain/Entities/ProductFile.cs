@@ -6,9 +6,9 @@ using System.Text;
 
 namespace ModularBackend.Domain.Entities
 {
-    public sealed class ProductFile
+    public sealed class ProductFile : Entity
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; private set; }
         public Guid ProductId { get; private set; }
         public string StorageKey { get; private set; } = default!;
         public string ContentType { get; private set; } = default!;
@@ -28,7 +28,7 @@ namespace ModularBackend.Domain.Entities
             long contentLength,
             string? originalFileName)
         {
-            if(id == Guid.Empty) { throw new ArgumentNullException("id"); }
+            if(id == Guid.Empty) { throw new ArgumentException("Id is required.", nameof(id)); }
 
             if (productId == Guid.Empty)
                 throw new ArgumentException("ProductId is required.", nameof(productId));
@@ -42,10 +42,7 @@ namespace ModularBackend.Domain.Entities
             if (string.IsNullOrWhiteSpace(contentHash))
                 throw new ArgumentException("ContentHash is required.", nameof(contentHash));
 
-            if (string.IsNullOrWhiteSpace(originalFileName))
-                throw new ArgumentException("File name is required.", nameof(originalFileName));
-
-            if (contentLength > 0)
+            if (contentLength <= 0)
                 throw new ArgumentException("ContentLength is required.", nameof(contentLength));
 
             Id = id;
@@ -64,8 +61,8 @@ namespace ModularBackend.Domain.Entities
             string storageKey,
             string contentType,
             string contentHash,
-            long contentLenght,
+            long contentLength,
             string? originalFileName)
-            => new(id, productId, storageKey, contentType, contentHash, contentLenght, originalFileName);
+            => new(id, productId, storageKey, contentType, contentHash, contentLength, originalFileName);
     }
 }

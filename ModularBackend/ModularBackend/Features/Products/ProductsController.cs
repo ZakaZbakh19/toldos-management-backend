@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
-using ModularBackend.Application.Abstractions.Common;
-using ModularBackend.Application.Abstractions.Messaging.Mediator;
-using ModularBackend.Application.Products.Commands.CreateProduct;
-using ModularBackend.Application.Products.Commands.UploadPhotoProducts;
-using ModularBackend.Application.Products.Queries.Common;
-using ModularBackend.Application.Products.Queries.GetProductById;
-using ModularBackend.Application.Products.Queries.GetProducts;
-using ModularBackend.Domain.Entities;
+using ModularBackend.Application.Features.Products.Common;
+using ModularBackend.Application.Features.Products.CreateProduct;
+using ModularBackend.Application.Features.Products.GetProductById;
+using ModularBackend.Application.Features.Products.GetProducts;
+using ModularBackend.Application.Features.Products.UploadPhotoProducts;
+using ModularBackend.Application.Mediator;
+using ModularBackend.Application.Shared;
 
 namespace ModularBackend.Api.Features.Products
 {
@@ -59,7 +57,7 @@ namespace ModularBackend.Api.Features.Products
 
             var result = await _mediator.Send(query, ct);
             //await HttpContext.InsertPaginationMetadataAsync(result, ct);
-            return Ok(result.Items);
+            return Ok(result);
         }
 
         [HttpPost]

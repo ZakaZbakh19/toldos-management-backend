@@ -17,10 +17,7 @@ namespace ModularBackend.Domain.Entities
         private readonly List<ProductFile> _photos = new();
         public IReadOnlyCollection<ProductFile> Photos => _photos.AsReadOnly();
 
-        public Product()
-        {
-
-        }
+        private Product(){ }
 
         public Product(string name, TaxRate taxRate, Money basePrice, string? description = null, bool isActive = true)
         {
@@ -84,7 +81,7 @@ namespace ModularBackend.Domain.Entities
             if (_photos.Any(x => x.ContentHash == resource.ContentHash))
                 throw new BusinessRuleViolationException("The same photo has already been added to this product.");
 
-            if (_photos.Any(x => x.ContentType == "image/gif"))
+            if (resource.ContentType == "image/gif")
                 throw new BusinessRuleViolationException("GIFs not allowed");
 
             _photos.Add(ProductFile.Create(
@@ -93,7 +90,7 @@ namespace ModularBackend.Domain.Entities
                 storageKey: resource.StorageKey,
                 contentType: resource.ContentType,
                 contentHash: resource.ContentHash,
-                contentLenght: resource.ContentLength,
+                contentLength: resource.ContentLength,
                 originalFileName: resource.OriginalFileName
             ));
         }

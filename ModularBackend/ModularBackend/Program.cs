@@ -6,6 +6,7 @@ using ModularBackend.Api.Middlewares;
 using ModularBackend.Api.Swagger;
 using ModularBackend.Application;
 using ModularBackend.Infrastructure;
+using ModularBackend.Infrastructure.Messaging.EventBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var initializer = scope.ServiceProvider.GetRequiredService<RabbitMqInitializer>();
+    await initializer.InitializeAsync();
 }
 
 app.UseHttpsRedirection();

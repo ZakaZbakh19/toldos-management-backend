@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using ModularBackend.Application.Abstractions.Identity;
-using ModularBackend.Infrastructure.Models.Identity;
+using ModularBackend.Application.Abstractions.Services.Identity;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;

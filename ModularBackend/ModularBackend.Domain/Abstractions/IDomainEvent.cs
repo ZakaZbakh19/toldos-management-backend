@@ -7,5 +7,6 @@ namespace ModularBackend.Domain.Abstractions
     public interface IDomainEvent
     {
         DateTime OccurredOnUtc { get; }
+        string Type { get; }
     }
 }

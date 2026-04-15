@@ -18,10 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Invoices\" />
-    <Folder Include="Customers\" />
-    <Folder Include="Users\Queries\" />
-    <Folder Include="Utilities\" />
+    <Folder Include="Features\Invoices\" />
+    <Folder Include="Features\Customers\" />
   </ItemGroup>
 
 </Project>

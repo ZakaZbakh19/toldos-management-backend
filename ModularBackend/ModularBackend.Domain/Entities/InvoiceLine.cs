@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ModularBackend.Domain.Entities
 {
-    public class InvoiceLine : Entity
+    public sealed class InvoiceLine : Entity
     {
         public Guid? ProductId { get; private set; }
         public string Description { get; private set; }
