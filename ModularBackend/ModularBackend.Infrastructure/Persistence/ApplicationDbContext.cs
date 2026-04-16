@@ -1,14 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using ModularBackend.Application.Abstractions.Services.Identity;
 using ModularBackend.Domain.Entities;
-using ModularBackend.Infrastructure.EventBus;
+using ModularBackend.Infrastructure.Messaging;
 using ModularBackend.Infrastructure.Messaging.Outbox;
 using ModularBackend.Infrastructure.Persistence.Configurations;
 using ModularBackend.Infrastructure.Services.Identity;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ModularBackend.Infrastructure.Persistence
 {

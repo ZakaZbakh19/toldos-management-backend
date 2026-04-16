@@ -30,8 +30,8 @@ namespace ModularBackend.Infrastructure.Messaging.EventBus
 
             await using var channel = await _connection.CreateChannelAsync(createChannelOptions, cancellationToken);
 
-            const string retryExchange = "integration-events-retry";
-            const string dlxExchange = "integration-events-dlx";
+            const string retryExchange = MessagingTopology.RetryExchange;
+            const string dlxExchange = MessagingTopology.DeadLetterExchange;
 
             await channel.ExchangeDeclareAsync(
                 exchange: _options.ExchangeName,
@@ -55,7 +55,7 @@ namespace ModularBackend.Infrastructure.Messaging.EventBus
                 cancellationToken: cancellationToken);
 
             await channel.QueueDeclareAsync(
-                queue: "catalog-products",
+                queue: MessagingTopology.ProductsQueue,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
@@ -66,7 +66,7 @@ namespace ModularBackend.Infrastructure.Messaging.EventBus
                 cancellationToken: cancellationToken);
 
             await channel.QueueDeclareAsync(
-                queue: "catalog-products-retry",
+                queue: MessagingTopology.ProductsQueueRetry,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
@@ -78,30 +78,19 @@ namespace ModularBackend.Infrastructure.Messaging.EventBus
                 cancellationToken: cancellationToken);
 
             await channel.QueueDeclareAsync(
-                queue: "catalog-products-dlq",
+                queue: MessagingTopology.ProductsQueueDeadLetter,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null,
                 cancellationToken: cancellationToken);
 
-            await channel.QueueBindAsync(
-                queue: "catalog-products",
-                exchange: _options.ExchangeName,
-                routingKey: IntegrationEventNames.ProductCreatedV1,
-                cancellationToken: cancellationToken);
-
-            await channel.QueueBindAsync(
-                queue: "catalog-products-retry",
-                exchange: retryExchange,
-                routingKey: IntegrationEventNames.ProductCreatedV1,
-                cancellationToken: cancellationToken);
-
-            await channel.QueueBindAsync(
-                queue: "catalog-products-dlq",
-                exchange: dlxExchange,
-                routingKey: IntegrationEventNames.ProductCreatedV1,
-                cancellationToken: cancellationToken);
+            foreach (var eventName in IntegrationEventNames.AllEventNames)
+            {
+                await channel.QueueBindAsync(MessagingTopology.ProductsQueue, _options.ExchangeName, eventName, cancellationToken: cancellationToken);
+                await channel.QueueBindAsync(MessagingTopology.ProductsQueueRetry, retryExchange, eventName, cancellationToken: cancellationToken);
+                await channel.QueueBindAsync(MessagingTopology.ProductsQueueDeadLetter, dlxExchange, eventName, cancellationToken:cancellationToken);
+            }
         }
     }
 }

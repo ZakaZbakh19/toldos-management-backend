@@ -14,9 +14,10 @@ namespace ModularBackend.Infrastructure.Messaging.Outbox
                 DomainEventNames.ProductCreatedDomainEvent,
                 Create<ProductCreatedDomainEvent>(e =>
                 {
+                    var occurredOnUtc = DateTime.UtcNow;
                     var integrationEvent = new ProductCreatedIntegrationEvent(
                         EventId: Guid.NewGuid(),
-                        OccurredOnUtc: DateTime.UtcNow,
+                        OccurredOnUtc: occurredOnUtc,
                         ProductId: e.ProductId,
                         Name: e.Name,
                         Price: e.Price);
@@ -26,7 +27,7 @@ namespace ModularBackend.Infrastructure.Messaging.Outbox
                         Id = Guid.NewGuid(),
                         Type = IntegrationEventNames.ProductCreatedV1,
                         Payload = JsonSerializer.Serialize(integrationEvent),
-                        OccurredOnUtc = DateTime.UtcNow,
+                        OccurredOnUtc = occurredOnUtc,
                         Attempts = 0
                     };
                 })

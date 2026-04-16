@@ -38,7 +38,7 @@ namespace ModularBackend.Infrastructure.Services.Identity
             _settings = settings.Value;
             _unitOfWork = unitOfWork;
 
-            ReuseGraceWindow = TimeSpan.FromMilliseconds(int.Parse(configuration.GetSection("Settings:ReuseGraceWindow").Value ?? string.Empty));
+            ReuseGraceWindow = TimeSpan.FromMilliseconds(configuration.GetValue<int>("Settings:ReuseGraceWindow", 500));
         }
 
         public async Task<string> IssueAsync(string userId, CancellationToken ct)

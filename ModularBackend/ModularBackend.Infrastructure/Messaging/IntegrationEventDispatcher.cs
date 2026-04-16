@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ModularBackend.Application.Abstractions.Events.IntegrationEvents;
 using ModularBackend.Application.Abstractions.Services.Messaging;
 using ModularBackend.Application.Features.Products.CreateProduct;
@@ -11,6 +12,7 @@ namespace ModularBackend.Infrastructure.Messaging
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IProcessedIntegrationEventStore _processedStore;
+        private readonly ILogger<IntegrationEventDispatcher> _logger;
 
         // El diccionario mapea el nombre del string al Tipo de la clase C#
         private static readonly Dictionary<string, Type> _eventTypeMapping = new()
@@ -20,10 +22,12 @@ namespace ModularBackend.Infrastructure.Messaging
 
         public IntegrationEventDispatcher(
             IServiceProvider serviceProvider,
-            IProcessedIntegrationEventStore processedStore)
+            IProcessedIntegrationEventStore processedStore,
+            ILogger<IntegrationEventDispatcher> logger)
         {
             _serviceProvider = serviceProvider;
             _processedStore = processedStore;
+            _logger = logger;
         }
 
         public async Task DispatchAsync(
@@ -35,8 +39,16 @@ namespace ModularBackend.Infrastructure.Messaging
         {
             if (!Guid.TryParse(messageIdRaw, out var eventId)) return;
 
-            if (await _processedStore.HasBeenProcessedAsync(eventId, consumerName, cancellationToken))
+            var started = await _processedStore.TryStartProcessingAsync(
+                eventId,
+                consumerName,
+                eventType,
+                cancellationToken);
+
+            if (!started)
+            {
                 return;
+            }
 
             try
             {
@@ -54,12 +66,22 @@ namespace ModularBackend.Infrastructure.Messaging
                     }
                 }
 
-                await _processedStore.MarkAsProcessedAsync(eventId, consumerName, eventType, cancellationToken);
+                await _processedStore.MarkAsProcessedAsync(eventId, consumerName, cancellationToken);
             }
-            catch (DbUpdateException) // EF Core lanza esto cuando falla la restricción de SQL
+            catch (DbUpdateException ex) // EF Core lanza esto cuando falla la restricción de SQL
             {
-                // Si la excepción es por clave duplicada, significa que otro proceso ya marcó este evento como procesado
-                // No hacemos nada y simplemente salimos, ya que el evento ya fue manejado por otro proceso
+                _logger.LogWarning(ex,
+                    "DbUpdateException while marking integration event {EventId} as processed for {ConsumerName}",
+                    eventId,
+                    consumerName);
+
+                await _processedStore.MarkAsFailedAsync(
+                    eventId,
+                    consumerName,
+                    ex.Message,
+                    cancellationToken);
+
+                throw;
             }
         }
     }

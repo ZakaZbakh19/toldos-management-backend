@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModularBackend.Application.Abstractions.Events.IntegrationEvents;
@@ -8,15 +9,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ModularBackend.Infrastructure.EventBus
+namespace ModularBackend.Infrastructure.Messaging
 {
     public sealed class ProductEventsConsumer : BackgroundService
     {
-        private const string ConsumerName = "catalog-products-consumer";
-        private const string QueueName = "catalog-products";
-        private const string RetryExchange = "integration-events-retry";
-        private const string DeadLetterExchange = "integration-events-dlx";
-        private const int MaxRetries = 3;
+        private const string ConsumerName = MessagingTopology.ProductsConsumer;
+        private const string QueueName = MessagingTopology.ProductsQueue;
+        private const string DeadLetterExchange = MessagingTopology.DeadLetterExchange;
+        private readonly int MaxRetries = 3;
 
         private readonly IConnection _connection;
         private readonly IServiceScopeFactory _scopeFactory;
@@ -27,11 +27,14 @@ namespace ModularBackend.Infrastructure.EventBus
         public ProductEventsConsumer(
             IConnection connection,
             IServiceScopeFactory scopeFactory,
-            ILogger<ProductEventsConsumer> logger)
+            ILogger<ProductEventsConsumer> logger,
+            IConfiguration configuration)
         {
             _connection = connection;
             _scopeFactory = scopeFactory;
             _logger = logger;
+
+            MaxRetries = configuration.GetValue<int>("Security:MaxAttempts", 3);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -165,14 +168,18 @@ namespace ModularBackend.Infrastructure.EventBus
             int retryCount,
             CancellationToken cancellationToken)
         {
+            var headers = ea.BasicProperties.Headers is null
+                ? new Dictionary<string, object?>()
+                : new Dictionary<string, object?>(ea.BasicProperties.Headers);
+
+            headers["x-retry-count"] = retryCount;
+
             var properties = new BasicProperties
             {
                 Persistent = true,
                 ContentType = ea.BasicProperties.ContentType ?? "application/json",
                 MessageId = ea.BasicProperties.MessageId,
-                Headers = ea.BasicProperties.Headers is null
-                    ? new Dictionary<string, object?>()
-                    : new Dictionary<string, object?>(ea.BasicProperties.Headers)
+                Headers = headers
             };
 
             await channel.BasicPublishAsync(
